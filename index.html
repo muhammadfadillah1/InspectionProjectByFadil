@@ -267,7 +267,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
     <div class="modal-title">✅ Konfirmasi Submit Inspeksi</div>
     <div class="modal-sub">Pastikan semua data sudah benar sebelum dikirim.</div>
     <div id="confirmSummary" style="background:var(--bg3);border-radius:var(--radius);padding:16px;margin-bottom:20px"></div>
-    <div class="alert alerts">📤 Data akan langsung tersimpan ke database dan dapat diakses melalui AlamtriNet / SmelterConnect.</div>
+    <div class="alert alerts">📤 Data akan langsung tersimpan ke database dan dapat diakses melalui AlamtriNexus / SmelterConnect.</div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
       <button class="btn btn-success" onclick="finalSubmit()">✅ Submit Inspeksi</button>
@@ -541,7 +541,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
       </select>
       <div style="margin-left:auto;display:flex;gap:10px;width:100%;justify-content:flex-end">
         <button class="btn btn-secondary btn-sm" onclick="openExport()">⬇️ <span class="btn-text">Export CSV</span></button>
-        <button class="btn btn-primary btn-sm" onclick="uploadToNet()">📤 <span class="btn-text">Upload ke AlamtriNet</span></button>
+        <button class="btn btn-primary btn-sm" onclick="uploadToNet()">📤 <span class="btn-text">Upload ke AlamtriNexus</span></button>
       </div>
     </div>
 
@@ -2199,7 +2199,7 @@ function closeModal2() {
 }
 
 function uploadToNet() {
-  showToast('📤 Mengupload ke AlamtriNet... (simulasi)');
+  showToast('📤 Mengupload ke AlamtriNexus... (simulasi)');
   setTimeout(() => showToast('✅ Upload ke SmelterConnect berhasil! Tersinkronisasi.'), 2000);
 }
 
