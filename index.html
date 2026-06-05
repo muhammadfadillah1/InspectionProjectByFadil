@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AlamtriInspect — Digital Inspection System</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Warna background dibikin jauh lebih terang (Slate Blue) agar teks kontras */
+  --bg:#1e293b;--bg2:#334155;--bg3:#475569;--bg4:#64748b;--bg5:#94a3b8;
+  --border:rgba(255,255,255,0.15);--border2:rgba(255,255,255,0.25);
+  --text:#ffffff;--text2:#f8fafc;--text3:#cbd5e1;
+  --accent:#38bdf8;--accent2:#0ea5e9;--accent3:#0284c7;
+  --green:#4ade80;--green2:#22c55e;--green-bg:rgba(74,222,128,0.15);
+  --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.15);
+  --red:#f87171;--red-bg:rgba(248,113,113,0.15);
+  --teal:#2dd4bf;--teal-bg:rgba(45,212,191,0.15);
+  --purple:#c084fc;--purple-bg:rgba(192,132,252,0.15);
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+  --radius:8px;--radius-lg:12px;--radius-xl:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+/* Font size dasar dinaikkan dari 14px ke 15px */
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:4px}
+
+/* ── TOPBAR ── */
+.topbar{background:rgba(30,41,59,0.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0}
+.logo-text{font-size:18px;font-weight:800;color:var(--text)}
+.logo-text span{color:var(--accent)}
+.logo-sub{font-size:12px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:2px 8px;margin-left:4px;font-weight:600}
+.topbar-desktop-text{margin-left:16px;font-size:12px;color:var(--text3)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 14px 4px 4px;cursor:pointer;transition:all .15s}
+.user-chip:hover{border-color:var(--border2)}
+.user-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-dept{font-size:11px;color:var(--text3)}
+.top-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text);transition:all .15s}
+.top-btn:hover{background:var(--bg4);border-color:var(--border2)}
+.top-btn.primary{background:var(--accent2);color:#fff;border-color:transparent}
+.top-btn.primary:hover{background:var(--accent)}
+
+/* ── LAYOUT ── */
+.app-container{max-width:1280px;margin:0 auto;padding:24px}
+.two-col{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
+.card:last-child{margin-bottom:0}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.card-body{padding:20px}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.bg{background:var(--green-bg);color:var(--green);border:1px solid rgba(74,222,128,.3)}
+.ba{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(251,191,36,.3)}
+.br{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+.bb{background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.3)}
+.bt{background:var(--teal-bg);color:var(--teal);border:1px solid rgba(45,212,191,.3)}
+.bgray{background:var(--bg4);color:var(--text2);border:1px solid var(--border)}
+
+/* ── SECTION TITLE ── */
+.section-title{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+
+/* ── DEPT SELECTOR ── */
+.dept-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dept-card{background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 10px;cursor:pointer;transition:all .15s;text-align:center;position:relative}
+.dept-card:hover{border-color:var(--border2);background:var(--bg4)}
+.dept-card.selected{border-color:var(--accent);background:rgba(56,189,248,.15)}
+.dept-card.selected::after{content:'✓';position:absolute;top:5px;right:7px;font-size:12px;font-weight:800;color:var(--accent);background:rgba(56,189,248,.2);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+.dept-emoji{font-size:24px;margin-bottom:6px}
+.dept-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.3}
+.dept-count{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── INSPECTION ITEM LIST ── */
+.insp-item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:var(--radius);cursor:pointer;transition:all .12s;border:1px solid transparent;margin-bottom:6px}
+.insp-item:hover{background:var(--bg3);border-color:var(--border)}
+.insp-item.selected{background:rgba(56,189,248,.15);border-color:rgba(56,189,248,.35)}
+.insp-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.insp-name{font-size:14px;font-weight:600;color:var(--text)}
+.insp-meta{font-size:12px;color:var(--text3);margin-top:2px}
+.insp-arrow{margin-left:auto;color:var(--text3);font-size:14px}
+
+/* ── FORM FIELDS ── */
+.form-section{margin-bottom:20px}
+.fs-title{font-size:13px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.field-group{margin-bottom:16px}
+.field-label{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.field-label .req{color:var(--red);font-size:12px}
+.field-label .hint{font-size:11px;color:var(--text3);font-weight:400;margin-left:auto}
+.field-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:border-color .15s}
+.field-input:focus{border-color:var(--accent2)}
+.field-input::placeholder{color:var(--text3)}
+.field-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;appearance:none;cursor:pointer;transition:border-color .15s}
+.field-select:focus{border-color:var(--accent2)}
+.field-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;resize:vertical;min-height:80px;transition:border-color .15s}
+.field-textarea:focus{border-color:var(--accent2)}
+
+/* ── PARAMETER INPUT (numeric) ── */
+.param-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.param-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:relative}
+.param-label{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.param-unit{font-size:11px;color:var(--text3);margin-left:auto}
+.param-input{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:15px;font-weight:600;outline:none;transition:border-color .15s;text-align:right}
+.param-input:focus{border-color:var(--accent2)}
+.param-range{font-size:11px;color:var(--text3);margin-top:6px;text-align:right}
+.param-status{position:absolute;top:10px;right:10px;width:10px;height:10px;border-radius:50%}
+.param-status.ok{background:var(--green)}
+.param-status.warn{background:var(--amber)}
+.param-status.nok{background:var(--red)}
+
+/* ── VISUAL CHECK (OK/NOT OK) ── */
+.visual-grid{display:flex;flex-direction:column;gap:10px}
+.visual-row{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.visual-label{font-size:14px;color:var(--text);flex:1}
+.visual-options{display:flex;gap:8px;flex-shrink:0}
+.vopt{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--bg4);color:var(--text2);transition:all .15s;user-select:none}
+.vopt:hover{border-color:var(--border2);color:var(--text)}
+.vopt.ok.selected{background:var(--green-bg);color:var(--green);border-color:rgba(74,222,128,.4)}
+.vopt.nok.selected{background:var(--red-bg);color:var(--red);border-color:rgba(248,113,113,.4)}
+.vopt.na.selected{background:var(--bg5);color:var(--text2);border-color:var(--border2)}
+
+/* ── PROGRESS STEPPER ── */
+.stepper{display:flex;align-items:center;gap:0;margin-bottom:24px}
+.step{display:flex;align-items:center;gap:0;flex:1}
+.step-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--text3);flex-shrink:0;transition:all .2s;background:var(--bg2)}
+.step-circle.active{border-color:var(--accent2);color:var(--accent);background:rgba(56,189,248,.15)}
+.step-circle.done{border-color:var(--green);background:var(--green);color:#fff}
+.step-label{font-size:12px;color:var(--text3);margin-left:8px;white-space:nowrap}
+.step-label.active{color:var(--text)}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 10px;min-width:20px}
+.step-line.done{background:var(--green)}
+
+/* ── HISTORY TABLE ── */
+.htable{width:100%;border-collapse:collapse}
+.htable th{text-align:left;padding:12px 14px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--bg3);white-space:nowrap}
+.htable td{padding:12px 14px;font-size:14px;color:var(--text);border-bottom:1px solid var(--border)}
+.htable tr:last-child td{border-bottom:none}
+.htable tr:hover td{background:rgba(255,255,255,.03)}
+
+/* ── ALERT ── */
+.alert{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:var(--radius);margin-bottom:18px;font-size:14px}
+.alerti{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);color:var(--accent)}
+.alertw{background:var(--amber-bg);border:1px solid rgba(251,191,36,.4);color:var(--amber)}
+.alerts{background:var(--green-bg);border:1px solid rgba(74,222,128,.4);color:var(--green)}
+.alertd{background:var(--red-bg);border:1px solid rgba(248,113,113,.4);color:var(--red)}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:var(--bg3);border-radius:9px;padding:4px;margin-bottom:20px;overflow-x:auto;white-space:nowrap}
+.tab{padding:8px 18px;border-radius:7px;font-size:14px;color:var(--text3);cursor:pointer;transition:all .12s;font-weight:600;user-select:none}
+.tab.active{background:var(--bg2);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;border:1px solid var(--border)}
+.btn-primary{background:var(--accent2);color:#fff;border-color:transparent}
+.btn-primary:hover{background:var(--accent3)}
+.btn-secondary{background:var(--bg3);color:var(--text)}
+.btn-secondary:hover{background:var(--bg4)}
+.btn-success{background:var(--green2);color:#fff;border-color:transparent}
+.btn-success:hover{background:rgba(34,197,94,1)}
+.btn-sm{padding:6px 14px;font-size:13px}
+.btn-xs{padding:4px 10px;font-size:12px}
+.btn-danger{background:var(--red-bg);color:var(--red);border-color:rgba(248,113,113,.4)}
+
+/* ── STAT MINI ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px}
+.stat-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.stat-val{font-size:24px;font-weight:800;font-family:var(--mono);color:var(--text);line-height:1;margin-bottom:4px}
+.stat-sub{font-size:12px;color:var(--text3)}
+.stat-box.hg{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)}
+.stat-box.hb{border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.08)}
+.stat-box.ha{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
+.stat-box.hr{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)}
+.cg{color:var(--green)}.ca{color:var(--amber)}.cr{color:var(--red)}.cb{color:var(--accent)}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.85);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:30px;width:500px;max-width:94vw;max-height:90vh;overflow-y:auto;transform:translateY(15px);transition:transform .2s;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
+.modal-overlay.open .modal-box{transform:translateY(0)}
+.modal-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px}
+.modal-sub{font-size:14px;color:var(--text3);margin-bottom:20px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:12px 24px;font-size:14px;font-weight:600;color:var(--text);z-index:999;opacity:0;pointer-events:none;transition:opacity .25s;box-shadow:0 6px 24px rgba(0,0,0,.6);white-space:nowrap}
+#toast.show{opacity:1}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:50px 24px;color:var(--text3)}
+.empty-icon{font-size:50px;margin-bottom:16px}
+.empty-title{font-size:18px;font-weight:700;color:var(--text2);margin-bottom:8px}
+.empty-sub{font-size:14px}
+
+/* ── SCROLLABLE FORM AREA ── */
+.form-scroll{max-height:calc(100vh - 220px);overflow-y:auto;padding-right:6px}
+
+/* ── FORM AREA ── */
+#formArea{display:none}
+#formArea.visible{display:block}
+
+/* ==========================================================
+   📱 RESPONSIVE MEDIA QUERIES MOBILE-FIRST
+   ========================================================== */
+@media (max-width: 900px) {
+  .two-col { grid-template-columns: 1fr; }
+  .form-scroll { max-height: none; overflow-y: visible; }
+}
+
+@media (max-width: 768px) {
+  .app-container { padding: 16px 12px; }
+  .card-header, .card-body { padding: 14px 16px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .param-grid { grid-template-columns: 1fr; }
+  .visual-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  
+  /* Sembunyikan teks di tombol navigasi atas, tampilkan icon saja */
+  .top-btn .btn-text { display: none; }
+  .top-btn { padding: 8px 12px; font-size: 16px; } /* Icon lebih besar */
+  
+  .topbar { padding: 0 12px; }
+  .topbar-desktop-text { display: none; } /* Hide the subtitle "Sistem Inspeksi..." */
+  
+  /* Sembunyikan text stepper di hp agar tidak sempit */
+  .step-label { display: none; }
+  .step-circle { width: 28px; height: 28px; font-size: 12px; }
+  .step-line { margin: 0 5px; }
+  
+  /* Tabel otomatis scroll horizontal */
+  .htable th, .htable td { padding: 10px; font-size: 12px; }
+  
+  /* Layout Dashboard Charts */
+  div[style*="display:grid;grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr; gap: 10px; }
+  .dept-grid { grid-template-columns: 1fr; }
+  .logo-text { display: none; } /* Hide logo text, only show icon */
+  .logo-sub { display: none; }
+  
+  /* Hide name/dept on chip */
+  .user-name, .user-dept { display: none; }
+  .user-chip { padding: 4px; background: transparent; border: none; }
+  .user-chip:hover { border-color: transparent; }
+  
+  .modal-box { padding: 20px 16px; }
+  .modal-footer { flex-direction: column; }
+  .modal-footer .btn { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal-box">
+    <div class="modal-title">✅ Konfirmasi Submit Inspeksi</div>
+    <div class="modal-sub">Pastikan semua data sudah benar sebelum dikirim.</div>
+    <div id="confirmSummary" style="background:var(--bg3);border-radius:var(--radius);padding:16px;margin-bottom:20px"></div>
+    <div class="alert alerts">📤 Data akan langsung tersimpan ke database dan dapat diakses melalui AlamtriNet / SmelterConnect.</div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+      <button class="btn btn-success" onclick="finalSubmit()">✅ Submit Inspeksi</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalExport">
+  <div class="modal-box">
+    <div class="modal-title">⬇️ Export Data Inspeksi</div>
+    <div class="modal-sub">Pilih format dan rentang tanggal.</div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:13px;font-weight:700;color:var(--text2);display:block;margin-bottom:8px">Departemen</label>
+      <select class="field-select" id="expDept"><option value="all">Semua Departemen</option><option>Power – Electrical</option><option>Kalsinasi</option><option>Molding</option><option>Baking</option><option>Rodding</option><option>Casting</option><option>Purifikasi</option><option>Production</option><option>Lab</option></select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div><label style="font-size:13px;font-weight:700;color:var(--text2);display:block;margin-bottom:8px">Dari Tanggal</label><input type="date" class="field-input" id="expFrom"></div>
+      <div><label style="font-size:13px;font-weight:700;color:var(--text2);display:block;margin-bottom:8px">Sampai Tanggal</label><input type="date" class="field-input" id="expTo"></div>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:13px;font-weight:700;color:var(--text2);display:block;margin-bottom:8px">Format Export</label>
+      <div style="display:flex;gap:12px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="expFmt" value="csv" checked style="accent-color:var(--accent2)"> CSV</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="expFmt" value="json"> JSON</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal2()">Batal</button>
+      <button class="btn btn-primary" onclick="doExport()">⬇️ Export</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">🔍</div>
+    <div>
+      <div class="logo-text">Alamtri<span>Inspect</span></div>
+    </div>
+    <span class="logo-sub">v2.0</span>
+  </div>
+  <div class="topbar-desktop-text">
+    Sistem Inspeksi Digital — PT Alamtri Resources Tbk
+  </div>
+  <div class="topbar-right">
+    <button class="top-btn" onclick="openExport()">⬇️ <span class="btn-text">Export CSV</span></button>
+    <button class="top-btn primary" onclick="showTab('new')">+ <span class="btn-text">Inspeksi Baru</span></button>
+    <div class="user-chip" onclick="showToast('👤 Profil: Muhammad Fadillah')">
+      <div class="user-av">MF</div>
+      <div>
+        <div class="user-name">M. Fadillah</div>
+        <div class="user-dept">Smelter Engineer</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-container">
+
+  <div class="tabs">
+    <div class="tab active" id="tab-new" onclick="showTab('new')">📋 Inspeksi Baru</div>
+    <div class="tab" id="tab-history" onclick="showTab('history')">🕘 Riwayat</div>
+    <div class="tab" id="tab-dashboard" onclick="showTab('dashboard')">📊 Dashboard</div>
+  </div>
+
+  <div id="tabNew">
+
+    <div class="stepper">
+      <div class="step">
+        <div class="step-circle active" id="st1">1</div>
+        <span class="step-label active" id="stl1">Pilih Dept.</span>
+      </div>
+      <div class="step-line" id="sl12"></div>
+      <div class="step">
+        <div class="step-circle" id="st2">2</div>
+        <span class="step-label" id="stl2">Pilih Item</span>
+      </div>
+      <div class="step-line" id="sl23"></div>
+      <div class="step">
+        <div class="step-circle" id="st3">3</div>
+        <span class="step-label" id="stl3">Isi Form</span>
+      </div>
+      <div class="step-line" id="sl34"></div>
+      <div class="step">
+        <div class="step-circle" id="st4">4</div>
+        <span class="step-label" id="stl4">Review</span>
+      </div>
+      <div class="step-line" id="sl45"></div>
+      <div class="step">
+        <div class="step-circle" id="st5">5</div>
+        <span class="step-label" id="stl5">Submit</span>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div>
+
+        <div class="card" id="cardDept">
+          <div class="card-header">
+            <div class="card-title">🏭 Step 1 — Pilih Departemen</div>
+          </div>
+          <div class="card-body">
+            <div class="dept-grid">
+              <div class="dept-card" id="dc-electrical" onclick="selectDept('electrical')">
+                <div class="dept-emoji">🔌</div>
+                <div class="dept-name">Power – Electrical</div>
+                <div class="dept-count">9 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-power" onclick="selectDept('power')">
+                <div class="dept-emoji">♻️</div>
+                <div class="dept-name">Power (WHB)</div>
+                <div class="dept-count">6 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-kalsinasi" onclick="selectDept('kalsinasi')">
+                <div class="dept-emoji">🔥</div>
+                <div class="dept-name">Kalsinasi</div>
+                <div class="dept-count">7 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-molding" onclick="selectDept('molding')">
+                <div class="dept-emoji">📦</div>
+                <div class="dept-name">Molding</div>
+                <div class="dept-count">5 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-baking" onclick="selectDept('baking')">
+                <div class="dept-emoji">🌡️</div>
+                <div class="dept-name">Baking</div>
+                <div class="dept-count">6 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-rodding" onclick="selectDept('rodding')">
+                <div class="dept-emoji">🔗</div>
+                <div class="dept-name">Rodding</div>
+                <div class="dept-count">5 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-casting" onclick="selectDept('casting')">
+                <div class="dept-emoji">🏭</div>
+                <div class="dept-name">Casting</div>
+                <div class="dept-count">5 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-purifikasi" onclick="selectDept('purifikasi')">
+                <div class="dept-emoji">💧</div>
+                <div class="dept-name">Purifikasi</div>
+                <div class="dept-count">6 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-production" onclick="selectDept('production')">
+                <div class="dept-emoji">🔩</div>
+                <div class="dept-name">Production</div>
+                <div class="dept-count">7 item inspeksi</div>
+              </div>
+              <div class="dept-card" id="dc-lab" onclick="selectDept('lab')">
+                <div class="dept-emoji">🧪</div>
+                <div class="dept-name">Lab</div>
+                <div class="dept-count">4 item inspeksi</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="cardItems" style="display:none">
+          <div class="card-header">
+            <div class="card-title" id="itemListTitle">🔎 Step 2 — Pilih Item Inspeksi</div>
+            <button class="btn btn-secondary btn-sm" onclick="resetDept()">← Ganti Dept.</button>
+          </div>
+          <div class="card-body" id="itemListBody">
+          </div>
+        </div>
+
+      </div>
+
+      <div id="formArea">
+        <div class="card" id="cardInspector">
+          <div class="card-header">
+            <div class="card-title">👤 Data Inspektor</div>
+            <span class="badge bb">Auto-filled</span>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="field-group" style="grid-column: span 1">
+                <div class="field-label">Nama Inspektor <span class="req">*</span></div>
+                <input type="text" class="field-input" id="inspName" value="Muhammad Fadillah" placeholder="Nama...">
+              </div>
+              <div class="field-group" style="grid-column: span 1">
+                <div class="field-label">NIK / ID Karyawan <span class="req">*</span></div>
+                <input type="text" class="field-input" id="inspNIK" value="ENG-0142" placeholder="NIK...">
+              </div>
+              <div class="field-group" style="grid-column: span 1">
+                <div class="field-label">Jabatan</div>
+                <input type="text" class="field-input" id="inspRole" value="Smelter Engineer" placeholder="Jabatan...">
+              </div>
+              <div class="field-group" style="grid-column: span 1">
+                <div class="field-label">Tanggal & Waktu <span class="req">*</span></div>
+                <input type="datetime-local" class="field-input" id="inspDateTime">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="cardForm">
+          <div class="card-header">
+            <div class="card-title" id="formTitle">📋 Step 3 — Form Inspeksi</div>
+            <span class="badge ba" id="formTypeBadge">Pilih item dulu</span>
+          </div>
+          <div class="card-body form-scroll" id="formBody">
+            <div class="empty-state">
+              <div class="empty-icon">👈</div>
+              <div class="empty-title">Pilih departemen dan item inspeksi</div>
+              <div class="empty-sub">Form akan muncul otomatis sesuai jenis inspeksi</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="cardNotes" style="display:none">
+          <div class="card-header">
+            <div class="card-title">📝 Catatan & Dokumentasi</div>
+          </div>
+          <div class="card-body">
+            <div class="field-group">
+              <div class="field-label">Catatan Umum <span class="hint">Opsional</span></div>
+              <textarea class="field-textarea" id="inspNotes" placeholder="Temuan, tindakan yang diambil, rekomendasi..."></textarea>
+            </div>
+            <div class="field-group" style="margin-bottom:0">
+              <div class="field-label">Tindakan Lanjut</div>
+              <select class="field-select" id="followUp">
+                <option value="none">Tidak diperlukan</option>
+                <option value="monitor">Perlu dimonitor</option>
+                <option value="maintenance">Jadwalkan maintenance</option>
+                <option value="urgent">⚠️ Tindakan Segera</option>
+                <option value="shutdown">🚨 Shutdown Required</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="formActions" style="display:none;display:flex;gap:12px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap">
+          <button class="btn btn-secondary" onclick="resetForm()">🗑️ <span class="btn-text">Reset</span></button>
+          <button class="btn btn-primary" onclick="previewSubmit()">👁️ <span class="btn-text">Review & Submit</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabHistory" style="display:none">
+    <div class="stats-row">
+      <div class="stat-box hg"><div class="stat-label">Total Hari Ini</div><div class="stat-val cg" id="statToday">0</div><div class="stat-sub">inspeksi selesai</div></div>
+      <div class="stat-box hb"><div class="stat-label">Bulan Ini</div><div class="stat-val cb" id="statMonth">24</div><div class="stat-sub">total inspeksi</div></div>
+      <div class="stat-box ha"><div class="stat-label">Perlu Tindak Lanjut</div><div class="stat-val ca" id="statFollowup">3</div><div class="stat-sub">item flagged</div></div>
+      <div class="stat-box hr"><div class="stat-label">Overdue</div><div class="stat-val cr">1</div><div class="stat-sub">jadwal terlewat</div></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+      <input type="text" class="field-input" placeholder="🔍 Cari inspeksi..." style="max-width:300px; flex:1" oninput="filterHistory(this.value)" id="histSearch">
+      <select class="field-select" style="max-width:220px; flex:1" onchange="filterHistDept(this.value)" id="histDeptFilter">
+        <option value="all">Semua Departemen</option>
+        <option>Power – Electrical</option>
+        <option>Power (WHB)</option>
+        <option>Kalsinasi</option>
+        <option>Molding</option>
+        <option>Baking</option>
+        <option>Rodding</option>
+        <option>Casting</option>
+        <option>Purifikasi</option>
+        <option>Production</option>
+        <option>Lab</option>
+      </select>
+      <select class="field-select" style="max-width:180px; flex:1" onchange="filterHistStatus(this.value)">
+        <option value="all">Semua Status</option>
+        <option value="ok">Normal</option>
+        <option value="warn">Perlu Monitor</option>
+        <option value="action">Perlu Tindakan</option>
+      </select>
+      <div style="margin-left:auto;display:flex;gap:10px;width:100%;justify-content:flex-end">
+        <button class="btn btn-secondary btn-sm" onclick="openExport()">⬇️ <span class="btn-text">Export CSV</span></button>
+        <button class="btn btn-primary btn-sm" onclick="uploadToNet()">📤 <span class="btn-text">Upload ke AlamtriNet</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="overflow-x:auto">
+        <table class="htable" id="historyTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tgl & Waktu</th>
+              <th>Departemen</th>
+              <th>Item Inspeksi</th>
+              <th>Inspektor</th>
+              <th>Hasil</th>
+              <th>Tindak Lanjut</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabDashboard" style="display:none">
+    <div class="stats-row">
+      <div class="stat-box hg"><div class="stat-label">Total Inspeksi</div><div class="stat-val cg">247</div><div class="stat-sub">sejak Jan 2026</div></div>
+      <div class="stat-box hb"><div class="stat-label">Compliance Rate</div><div class="stat-val cb">94.3%</div><div class="stat-sub">target: ≥90%</div></div>
+      <div class="stat-box ha"><div class="stat-label">Avg per Hari</div><div class="stat-val ca">8.2</div><div class="stat-sub">inspeksi/hari</div></div>
+      <div class="stat-box hr"><div class="stat-label">Open Issues</div><div class="stat-val cr">4</div><div class="stat-sub">perlu tindakan</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Inspeksi per Departemen (bulan ini)</div></div>
+        <div class="card-body">
+          <canvas id="chartDept" height="240"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📈 Tren Inspeksi 7 Hari</div></div>
+        <div class="card-body">
+          <canvas id="chartTrend" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">⚠️ Open Issues — Perlu Tindak Lanjut</div></div>
+      <div style="overflow-x:auto">
+        <table class="htable">
+          <thead><tr><th>ID</th><th>Tgl</th><th>Dept.</th><th>Item</th><th>Temuan</th><th>Inspektor</th><th>Prioritas</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td style="font-family:var(--mono);font-size:12px">INS-0241</td><td>02/06</td><td>Power – Electrical</td><td>Trafo Daya #3</td><td>LV bushing suhu abnormal +12°C</td><td>Ahmad F.</td><td><span class="badge ba">Monitor</span></td><td><span class="badge ba">Open</span></td></tr>
+            <tr><td style="font-family:var(--mono);font-size:12px">INS-0238</td><td>01/06</td><td>Kalsinasi</td><td>Kiln 2 Seal</td><td>Kebocoran debu halus area discharge</td><td>Hendra S.</td><td><span class="badge ba">Maintenance</span></td><td><span class="badge ba">In Progress</span></td></tr>
+            <tr><td style="font-family:var(--mono);font-size:12px">INS-0235</td><td>31/05</td><td>Purifikasi</td><td>Gas Scrubber #1</td><td>Efisiensi filter turun 4%</td><td>Nina W.</td><td><span class="badge br">Urgent</span></td><td><span class="badge ba">Open</span></td></tr>
+            <tr><td style="font-family:var(--mono);font-size:12px">INS-0229</td><td>29/05</td><td>Rodding</td><td>Casting Machine #2</td><td>Seal casting bocor — sudah di-shutdown</td><td>Doni K.</td><td><span class="badge br">Urgent</span></td><td><span class="badge bg">Resolved</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><script>
+// ====================================================
+// DATA: INSPECTION DEFINITIONS PER DEPARTMENT
+// ====================================================
+const INSP_DATA = {
+  electrical: {
+    label: 'Power – Electrical',
+    color: '#f87171',
+    items: [
+      {
+        id: 'trafo1', name: 'Trafo Daya #1', icon: '⚡',
+        type: 'mixed',
+        description: 'Visual & pengukuran suhu transformator daya 1',
+        visual: [
+          'Kondisi bodi trafo (tidak ada retakan/korosi)',
+          'Level oli transformator normal',
+          'Tidak ada rembesan oli',
+          'Radiator/sirip pendingin bersih',
+          'Indikator Buchholz relay normal',
+          'Tidak ada bau gosong / asap',
+          'Grounding terhubung baik',
+        ],
+        params: [
+          {name:'Suhu winding primer (HV)', unit:'°C', min:20, max:85, spec:'≤85°C'},
+          {name:'Suhu winding sekunder (LV)', unit:'°C', min:20, max:80, spec:'≤80°C'},
+          {name:'Suhu oli trafo', unit:'°C', min:20, max:75, spec:'≤75°C'},
+          {name:'Tegangan HV bushing', unit:'kV', min:0, max:250, spec:'Nominal 220 kV'},
+          {name:'Tegangan LV bushing', unit:'kV', min:0, max:50, spec:'Nominal 33 kV'},
+          {name:'Arus beban trafo', unit:'A', min:0, max:2000, spec:'≤1800 A'},
+        ],
+        checkpoints: [
+          {name:'HV Side Bushing', group:'Bushing'},
+          {name:'LV Side Bushing', group:'Bushing'},
+          {name:'Sambungan Bushing di Dinding', group:'Bushing'},
+          {name:'Oil-Fan Cooling Control Box', group:'Cooling'},
+        ]
+      },
+      {
+        id: 'trafo2', name: 'Trafo Daya #2', icon: '⚡',
+        type: 'mixed',
+        description: 'Visual & pengukuran suhu transformator daya 2',
+        visual: [
+          'Kondisi bodi trafo (tidak ada retakan/korosi)',
+          'Level oli transformator normal',
+          'Tidak ada rembesan oli',
+          'Radiator/sirip pendingin bersih',
+          'Indikator Buchholz relay normal',
+          'Tidak ada bau gosong / asap',
+          'Grounding terhubung baik',
+        ],
+        params: [
+          {name:'Suhu winding primer (HV)', unit:'°C', min:20, max:85, spec:'≤85°C'},
+          {name:'Suhu winding sekunder (LV)', unit:'°C', min:20, max:80, spec:'≤80°C'},
+          {name:'Suhu oli trafo', unit:'°C', min:20, max:75, spec:'≤75°C'},
+          {name:'Tegangan HV bushing', unit:'kV', min:0, max:250, spec:'Nominal 220 kV'},
+          {name:'Tegangan LV bushing', unit:'kV', min:0, max:50, spec:'Nominal 33 kV'},
+        ],
+        checkpoints: [
+          {name:'HV Side Bushing', group:'Bushing'},
+          {name:'LV Side Bushing', group:'Bushing'},
+          {name:'Sambungan Bushing di Dinding', group:'Bushing'},
+          {name:'Oil-Fan Cooling Control Box', group:'Cooling'},
+        ]
+      },
+      {
+        id: 'rectifier', name: 'Rectifier Unit 1–6', icon: '🔋',
+        type: 'mixed',
+        description: 'Inspeksi sistem rectifier dan thyristor',
+        visual: [
+          'Tidak ada alarm aktif di panel rectifier',
+          'Kondisi thyristor (tidak ada tanda hangus)',
+          'Cooling system berjalan normal',
+          'Koneksi busbar terpasang kencang',
+          'Tidak ada kebocoran air pendingin',
+        ],
+        params: [
+          {name:'Arus DC output total', unit:'kA', min:0, max:550, spec:'Target 500 kA'},
+          {name:'Tegangan DC output', unit:'V', min:0, max:1800, spec:'1.450–1.550 V'},
+          {name:'Suhu thyristor tertinggi', unit:'°C', min:20, max:90, spec:'≤85°C'},
+          {name:'Arus cooling water', unit:'L/min', min:0, max:500, spec:'≥400 L/min'},
+        ],
+        checkpoints: [
+          {name:'R-Unit 1', group:'Rectifier'},
+          {name:'R-Unit 2', group:'Rectifier'},
+          {name:'R-Unit 3', group:'Rectifier'},
+          {name:'R-Unit 4', group:'Rectifier'},
+          {name:'R-Unit 5', group:'Rectifier'},
+          {name:'R-Unit 6', group:'Rectifier'},
+        ]
+      },
+      {
+        id: 'busbar', name: 'Sistem Busbar', icon: '🔩',
+        type: 'mixed',
+        description: 'Inspeksi sambungan busbar distribusi arus ke pot',
+        visual: [
+          'Tidak ada hot spot terlihat (visual/IR)',
+          'Sambungan baut busbar tidak longgar',
+          'Isolasi busbar tidak retak atau gosong',
+          'Tidak ada tanda korosi berlebihan',
+        ],
+        params: [
+          {name:'Suhu sambungan maks (IR)', unit:'°C', min:20, max:80, spec:'≤60°C'},
+          {name:'Drop tegangan busbar', unit:'mV', min:0, max:50, spec:'≤30 mV'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'panel-mv', name: 'Panel MV Switchgear', icon: '🗄️',
+        type: 'visual',
+        description: 'Inspeksi visual panel medium voltage',
+        visual: [
+          'Pintu panel tertutup dan terkunci',
+          'Tidak ada alarm aktif',
+          'Lampu indikator sesuai kondisi normal',
+          'Tidak ada bunyi abnormal (hum berlebih)',
+          'Label/marking terpasang lengkap',
+          'Kebersihan panel (tidak ada debu berlebih)',
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'grounding', name: 'Sistem Grounding', icon: '🌱',
+        type: 'visual',
+        description: 'Inspeksi integritas sistem grounding smelter',
+        visual: [
+          'Koneksi grounding utama terpasang kencang',
+          'Kabel grounding tidak putus/korosi',
+          'Elektroda grounding tidak kendur',
+          'Tanda/label grounding terpasang',
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'ups', name: 'UPS & Battery Bank', icon: '🔌',
+        type: 'mixed',
+        description: 'Inspeksi sistem UPS dan battery bank control',
+        visual: [
+          'LED status UPS normal (tidak alarm)',
+          'Tidak ada bau asam dari baterai',
+          'Ventilasi ruang baterai memadai',
+          'Tidak ada rembesan elektrolit',
+        ],
+        params: [
+          {name:'Tegangan baterai bank', unit:'VDC', min:0, max:300, spec:'220–240 VDC'},
+          {name:'Suhu ruang baterai', unit:'°C', min:15, max:35, spec:'20–30°C'},
+          {name:'Kapasitas UPS terukur', unit:'%', min:0, max:100, spec:'≥85%'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'emergency-gen', name: 'Emergency Generator', icon: '⚙️',
+        type: 'mixed',
+        description: 'Inspeksi genset darurat',
+        visual: [
+          'Level bahan bakar cukup (≥75%)',
+          'Level oli mesin normal',
+          'Level air radiator normal',
+          'Tidak ada kebocoran bahan bakar/oli',
+          'Kondisi aki starter normal',
+        ],
+        params: [
+          {name:'Tegangan output (test)', unit:'V', min:0, max:500, spec:'380–400 V'},
+          {name:'Frekuensi output', unit:'Hz', min:0, max:60, spec:'50 ±0.5 Hz'},
+          {name:'Suhu ruang genset', unit:'°C', min:15, max:50, spec:'≤45°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'lightning-protection', name: 'Sistem Proteksi Petir', icon: '⛈️',
+        type: 'visual',
+        description: 'Inspeksi integritas proteksi petir',
+        visual: [
+          'Air terminal tidak patah/bengkok',
+          'Down conductor tidak putus',
+          'Sambungan ke grounding kencang',
+          'Surge protection device tidak terbakar',
+        ],
+        checkpoints: []
+      }
+    ]
+  },
+  power: {
+    label: 'Power (Waste Heat Boiler)',
+    color: '#2dd4bf',
+    items: [
+      {
+        id: 'whb', name: 'Waste Heat Boiler', icon: '♻️',
+        type: 'mixed',
+        description: 'Inspeksi boiler recovery panas buang dari pot elektrolisis',
+        visual: [
+          'Tidak ada kebocoran uap pada pipa boiler',
+          'Safety valve dalam kondisi baik (tidak bocor terus)',
+          'Level air sight glass normal',
+          'Isolasi pipa tidak rusak',
+          'Tidak ada getaran abnormal',
+        ],
+        params: [
+          {name:'Tekanan steam (bar)', unit:'bar', min:0, max:20, spec:'8–12 bar'},
+          {name:'Suhu steam output', unit:'°C', min:0, max:350, spec:'180–220°C'},
+          {name:'Level air boiler', unit:'%', min:0, max:100, spec:'40–70%'},
+          {name:'Energi dihasilkan WHB', unit:'MWh', min:0, max:50, spec:'Target ≥15 MWh/hari'},
+          {name:'Suhu gas buang masuk', unit:'°C', min:0, max:900, spec:'500–800°C'},
+          {name:'Suhu gas buang keluar', unit:'°C', min:0, max:300, spec:'≤180°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'steam-turbine', name: 'Steam Turbine', icon: '🌀',
+        type: 'mixed',
+        description: 'Inspeksi turbin uap untuk pembangkitan listrik dari WHB',
+        visual: [
+          'Tidak ada kebocoran uap pada seal',
+          'Getaran turbine dalam batas normal',
+          'Kondisi bearing tidak abnormal',
+          'Panel kontrol turbin tidak alarm',
+          'Kondensor air pendingin normal',
+        ],
+        params: [
+          {name:'Putaran turbin', unit:'RPM', min:0, max:4000, spec:'3000 RPM'},
+          {name:'Daya listrik dihasilkan', unit:'kW', min:0, max:5000, spec:'Target ≥1.500 kW'},
+          {name:'Tekanan uap masuk', unit:'bar', min:0, max:20, spec:'8–10 bar'},
+          {name:'Tekanan uap keluar', unit:'bar', min:0, max:5, spec:'≤0.5 bar'},
+          {name:'Suhu bearing', unit:'°C', min:0, max:100, spec:'≤80°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'wwt', name: 'Waste Water Treatment', icon: '💧',
+        type: 'mixed',
+        description: 'Inspeksi instalasi pengolahan air limbah',
+        visual: [
+          'Tidak ada luapan dari bak penampung',
+          'Pompa sirkulasi beroperasi normal',
+          'Aerator berfungsi (gelembung terlihat)',
+          'Tidak ada bau H₂S berlebihan',
+        ],
+        params: [
+          {name:'pH air olahan', unit:'', min:0, max:14, spec:'6.5–8.5'},
+          {name:'TSS (mg/L)', unit:'mg/L', min:0, max:500, spec:'≤100 mg/L'},
+          {name:'COD (mg/L)', unit:'mg/L', min:0, max:500, spec:'≤150 mg/L'},
+          {name:'Suhu air olahan', unit:'°C', min:0, max:50, spec:'≤38°C'},
+          {name:'Debit flow rate', unit:'m³/hr', min:0, max:200, spec:'Per desain'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'cooling-tower', name: 'Cooling Tower', icon: '🏗️',
+        type: 'mixed',
+        description: 'Inspeksi cooling tower untuk sistem pendingin',
+        visual: [
+          'Fill media tidak tersumbat',
+          'Drift eliminator terpasang baik',
+          'Level air basin normal',
+          'Fan berputar normal (tidak getar)',
+          'Tidak ada pertumbuhan alga berlebihan',
+        ],
+        params: [
+          {name:'Suhu air masuk', unit:'°C', min:0, max:60, spec:'≤45°C'},
+          {name:'Suhu air keluar', unit:'°C', min:0, max:40, spec:'≤32°C'},
+          {name:'Flow rate', unit:'m³/hr', min:0, max:2000, spec:'≥1.200 m³/hr'},
+          {name:'pH air sistem', unit:'', min:0, max:14, spec:'6.8–7.5'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'fuel-gas', name: 'Natural Gas Station', icon: '🔥',
+        type: 'mixed',
+        description: 'Inspeksi sistem distribusi gas alam untuk kiln/boiler',
+        visual: [
+          'Tidak ada bau gas (kebocoran)',
+          'Pressure gauge dalam range normal',
+          'Valve posisi sesuai (open/close label)',
+          'Safety relief valve tidak aktif abnormal',
+        ],
+        params: [
+          {name:'Tekanan gas supply', unit:'bar', min:0, max:10, spec:'3–5 bar'},
+          {name:'Flow rate gas total', unit:'Nm³/hr', min:0, max:20000, spec:'Per target harian'},
+          {name:'Suhu gas', unit:'°C', min:0, max:60, spec:'Ambient ±10°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'compressed-air', name: 'Sistem Udara Bertekanan', icon: '💨',
+        type: 'mixed',
+        description: 'Inspeksi kompresor dan distribusi udara bertekanan',
+        visual: [
+          'Tidak ada kebocoran pada fitting/valve',
+          'Filter udara tidak tersumbat',
+          'Kondensasi dibuang dari drain valve',
+          'Bunyi kompresor normal',
+        ],
+        params: [
+          {name:'Tekanan header utama', unit:'barg', min:0, max:12, spec:'6.5–8.0 barg'},
+          {name:'Suhu after-cooler', unit:'°C', min:0, max:60, spec:'≤45°C'},
+          {name:'Dew point udara kering', unit:'°C', min:-50, max:20, spec:'≤-20°C'},
+        ],
+        checkpoints: []
+      },
+    ]
+  },
+  kalsinasi: {
+    label: 'Kalsinasi',
+    color: '#fb923c',
+    items: [
+      {
+        id: 'kiln1', name: 'Rotary Kiln 1', icon: '🔥',
+        type: 'mixed',
+        description: 'Inspeksi rutin rotary kiln 1 — 54 area bakar',
+        visual: [
+          'Shell kiln tidak retak/merah (hot spot)',
+          'Tyre dan riding ring normal (tidak aus berlebih)',
+          'Thrust roller dalam posisi normal',
+          'Seal kiln (inlet/outlet) tidak bocor',
+          'Burner flame stabil dan simetris',
+        ],
+        params: [
+          {name:'Suhu zona pembakaran (area 27)', unit:'°C', min:0, max:1400, spec:'1.150–1.350°C'},
+          {name:'Suhu zona inlet (area 1)', unit:'°C', min:0, max:500, spec:'200–400°C'},
+          {name:'Suhu zona outlet (area 54)', unit:'°C', min:0, max:900, spec:'600–800°C'},
+          {name:'Tekanan kiln draft', unit:'mmH₂O', min:-50, max:0, spec:'-5 s/d -20 mmH₂O'},
+          {name:'Feed rate GPC', unit:'t/hr', min:0, max:30, spec:'20–25 t/hr'},
+          {name:'Putaran kiln', unit:'RPM', min:0, max:5, spec:'1.5–2.5 RPM'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'kiln2', name: 'Rotary Kiln 2', icon: '🔥',
+        type: 'mixed',
+        description: 'Inspeksi rutin rotary kiln 2 — 54 area bakar',
+        visual: [
+          'Shell kiln tidak retak/merah (hot spot)',
+          'Tyre dan riding ring normal',
+          'Thrust roller dalam posisi normal',
+          'Seal kiln (inlet/outlet) tidak bocor',
+          'Burner flame stabil dan simetris',
+        ],
+        params: [
+          {name:'Suhu zona pembakaran (area 27)', unit:'°C', min:0, max:1400, spec:'1.150–1.350°C'},
+          {name:'Suhu zona inlet (area 1)', unit:'°C', min:0, max:500, spec:'200–400°C'},
+          {name:'Suhu zona outlet (area 54)', unit:'°C', min:0, max:900, spec:'600–800°C'},
+          {name:'Tekanan kiln draft', unit:'mmH₂O', min:-50, max:0, spec:'-5 s/d -20 mmH₂O'},
+          {name:'Feed rate GPC', unit:'t/hr', min:0, max:30, spec:'20–25 t/hr'},
+          {name:'Putaran kiln', unit:'RPM', min:0, max:5, spec:'1.5–2.5 RPM'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'kiln-area', name: 'Scan Suhu 54 Area Kiln', icon: '🌡️',
+        type: 'params-only',
+        description: 'Pengukuran suhu per area kiln (1–54) menggunakan pyrometer',
+        params: Array.from({length:54}, (_,i) => ({
+          name:`Area ${i+1}`, unit:'°C', min:0, max:1400, spec:'1.150–1.350°C (zona bakar)'
+        })),
+        checkpoints: []
+      },
+      {
+        id: 'cooler', name: 'Cooler & Material Handling', icon: '❄️',
+        type: 'mixed',
+        description: 'Inspeksi sistem pendingin CPC dan conveyor',
+        visual: [
+          'Rotary cooler berputar normal',
+          'Tidak ada material spill di sekitar cooler',
+          'Belt conveyor beroperasi normal',
+          'Dust collection system aktif',
+        ],
+        params: [
+          {name:'Suhu CPC keluar cooler', unit:'°C', min:0, max:200, spec:'≤120°C'},
+          {name:'Flow cooling water ke cooler', unit:'m³/hr', min:0, max:100, spec:'Per desain'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'dust-system', name: 'Dust Collection System', icon: '💨',
+        type: 'mixed',
+        description: 'Inspeksi sistem penangkap debu kalsinasi',
+        visual: [
+          'Bag filter tidak bocor (tidak ada debu keluar)',
+          'Differential pressure gauge normal',
+          'Pulse jet cleaning berfungsi',
+          'Rotary valve berjalan normal',
+        ],
+        params: [
+          {name:'Differential pressure', unit:'mmH₂O', min:0, max:200, spec:'80–150 mmH₂O'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'gpc-storage', name: 'Green Petroleum Coke Storage', icon: '📦',
+        type: 'visual',
+        description: 'Inspeksi gudang penyimpanan GPC',
+        visual: [
+          'Tidak ada genangan air di area penyimpanan',
+          'GPC tertutup/terlindungi dari hujan',
+          'Level stok GPC mencukupi (≥7 hari)',
+          'Sistem conveyor feeding normal',
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'cpc-quality-sampling', name: 'CPC Sampling QC Point', icon: '🧪',
+        type: 'visual',
+        description: 'Inspeksi titik sampling kualitas CPC sebelum transfer ke Molding',
+        visual: [
+          'Alat sampling bersih dan tidak terkontaminasi',
+          'Labelling sample sudah benar',
+          'Sampel dikirim ke Lab dalam 1 jam',
+          'Tidak ada kontaminasi material asing',
+        ],
+        checkpoints: []
+      }
+    ]
+  },
+  molding: {
+    label: 'Molding',
+    color: '#38bdf8',
+    items: [
+      {
+        id: 'mixer', name: 'Mixer & Kneader', icon: '🔄',
+        type: 'mixed',
+        description: 'Inspeksi mixer pasta anoda',
+        visual: [
+          'Seal/gasket mixer tidak bocor',
+          'Bearing mixer tidak bergetar abnormal',
+          'Heater mixer berfungsi (suhu tercapai)',
+          'Kebersihan ruang mixing',
+        ],
+        params: [
+          {name:'Suhu pitch di mixer', unit:'°C', min:0, max:200, spec:'155–165°C'},
+          {name:'Waktu mixing per batch', unit:'menit', min:0, max:60, spec:'20–30 menit'},
+          {name:'Arus motor mixer', unit:'A', min:0, max:300, spec:'Per nameplate'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'vibro-compactor', name: 'Vibro Compactor / Press', icon: '🔨',
+        type: 'mixed',
+        description: 'Inspeksi mesin pressing green anode',
+        visual: [
+          'Cetakan anode bersih (tidak ada residu pasta)',
+          'Hydraulic system tidak bocor',
+          'Ejector berfungsi normal',
+          'Greasing cetakan sudah dilakukan',
+        ],
+        params: [
+          {name:'Tekanan hydraulic pressing', unit:'bar', min:0, max:400, spec:'250–320 bar'},
+          {name:'Berat green anode per blok', unit:'kg', min:700, max:900, spec:'820–830 kg'},
+          {name:'Densitas apparent blok', unit:'g/cc', min:1.5, max:1.8, spec:'≥1.60 g/cc'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'pitch-system', name: 'Sistem Pitch (Coal Tar Pitch)', icon: '🛢️',
+        type: 'mixed',
+        description: 'Inspeksi penyimpanan dan distribusi pitch',
+        visual: [
+          'Tangki pitch tidak bocor',
+          'Tracer heating berfungsi (pitch tidak membeku)',
+          'Tidak ada VOC berlebihan (gunakan gas detector)',
+          'Level pitch dalam tangki memadai',
+        ],
+        params: [
+          {name:'Suhu pitch tangki', unit:'°C', min:0, max:200, spec:'150–170°C'},
+          {name:'Level pitch (%)', unit:'%', min:0, max:100, spec:'≥30%'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'cooling-tunnel', name: 'Cooling Tunnel Anode', icon: '❄️',
+        type: 'mixed',
+        description: 'Inspeksi terowongan pendingin green anode sebelum staging',
+        visual: [
+          'Sprinkler/mist cooling berfungsi normal',
+          'Conveyor dalam cooling tunnel normal',
+          'Tidak ada blok yang jatuh/retak saat keluar',
+        ],
+        params: [
+          {name:'Suhu blok keluar cooling', unit:'°C', min:0, max:150, spec:'≤60°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'reject-inspection', name: 'Inspeksi Reject Anode', icon: '🚫',
+        type: 'mixed',
+        description: 'Investigasi penyebab reject green anode',
+        visual: [
+          'Crack/retakan pada permukaan blok',
+          'Berat tidak dalam spec',
+          'Permukaan tidak rata',
+          'Kontaminasi material asing',
+        ],
+        params: [
+          {name:'Jumlah reject shift ini', unit:'blok', min:0, max:50, spec:'≤3% total produksi'},
+          {name:'% reject terhadap total', unit:'%', min:0, max:20, spec:'≤3%'},
+        ],
+        checkpoints: []
+      }
+    ]
+  },
+  baking: {
+    label: 'Baking',
+    color: '#fbbf24',
+    items: [
+      {
+        id: 'ring-furnace', name: 'Ring Furnace (F1–F6)', icon: '🌡️',
+        type: 'mixed',
+        description: 'Inspeksi kondisi ring furnace baking anoda',
+        visual: [
+          'Tidak ada kebocoran gas pada burner',
+          'Refractory tidak retak berlebihan',
+          'Sistem exhausting gas berjalan',
+          'Thermocouple terpasang dengan baik',
+        ],
+        params: [
+          {name:'Suhu puncak zona pembakaran', unit:'°C', min:0, max:1300, spec:'1.080–1.120°C'},
+          {name:'Suhu cooling zone', unit:'°C', min:0, max:600, spec:'Per profil kurva'},
+          {name:'Tekanan furnace draft', unit:'Pa', min:-100, max:0, spec:'-20 s/d -50 Pa'},
+          {name:'Konsumsi gas (per furnace)', unit:'Nm³/hr', min:0, max:2000, spec:'Per kurva baking'},
+          {name:'Jumlah blok dalam furnace', unit:'blok', min:0, max:100, spec:'Per kapasitas'},
+        ],
+        checkpoints: [
+          {name:'Furnace 1', group:'Ring Furnace'},
+          {name:'Furnace 2', group:'Ring Furnace'},
+          {name:'Furnace 3', group:'Ring Furnace'},
+          {name:'Furnace 4', group:'Ring Furnace'},
+          {name:'Furnace 5', group:'Ring Furnace'},
+          {name:'Furnace 6', group:'Ring Furnace'},
+        ]
+      },
+      {
+        id: 'burner-system', name: 'Burner System', icon: '🔥',
+        type: 'mixed',
+        description: 'Inspeksi sistem burner dan distribusi gas pembakaran',
+        visual: [
+          'Flame stabil (tidak goyang berlebih)',
+          'Tidak ada carbon deposit di nozzle',
+          'Air shutter terbuka sesuai setting',
+          'Gas valve tidak bocor',
+        ],
+        params: [
+          {name:'Rasio udara-bahan bakar', unit:'', min:0, max:20, spec:'10–15 (excess air)'},
+          {name:'Tekanan gas supply burner', unit:'mbar', min:0, max:200, spec:'80–120 mbar'},
+          {name:'Suhu flue gas', unit:'°C', min:0, max:1300, spec:'Per profil'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'baked-anode-qc', name: 'QC Baked Anode (Post-Baking)', icon: '🧪',
+        type: 'mixed',
+        description: 'Inspeksi visual dan pengukuran baked anode setelah keluar furnace',
+        visual: [
+          'Tidak ada crack yang terlihat jelas',
+          'Warna permukaan seragam (abu-abu gelap)',
+          'Dimensi blok sesuai spesifikasi',
+          'Tidak ada material asing tertempel',
+        ],
+        params: [
+          {name:'Suhu blok saat keluar furnace', unit:'°C', min:0, max:500, spec:'≤200°C sebelum ke Rodding'},
+          {name:'Berat baked anode', unit:'kg', min:600, max:900, spec:'800–820 kg'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'fume-treatment', name: 'Fume Treatment Unit Baking', icon: '💨',
+        type: 'mixed',
+        description: 'Inspeksi sistem penanganan asap dari proses baking',
+        visual: [
+          'Filter/scrubber tidak tersumbat',
+          'Fan induced draft berjalan normal',
+          'Tidak ada emisi asap hitam berlebihan',
+        ],
+        params: [
+          {name:'Aliran flue gas', unit:'m³/hr', min:0, max:50000, spec:'Per desain'},
+          {name:'Suhu gas masuk scrubber', unit:'°C', min:0, max:400, spec:'≤350°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'loading-unloading', name: 'Loading / Unloading Furnace', icon: '🏗️',
+        type: 'visual',
+        description: 'Inspeksi proses loading green anode dan unloading baked anode',
+        visual: [
+          'Crane/hoist dalam kondisi baik',
+          'Sling/spreader bar tidak cacat',
+          'Area kerja aman (K3 terpenuhi)',
+          'APD lengkap digunakan operator',
+          'Tidak ada blok yang terjatuh/pecah saat handling',
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'thermal-insulation', name: 'Isolasi Termal Furnace', icon: '🧱',
+        type: 'visual',
+        description: 'Inspeksi kondisi refractory dan insulation furnace',
+        visual: [
+          'Tidak ada hot spot di dinding luar furnace',
+          'Crown/arch tidak amblas',
+          'Expansion joint dalam kondisi baik',
+          'Tidak ada retakan yang mengkhawatirkan',
+        ],
+        checkpoints: []
+      }
+    ]
+  },
+  rodding: {
+    label: 'Rodding',
+    color: '#4ade80',
+    items: [
+      {
+        id: 'casting-iron', name: 'Casting Iron Machine', icon: '🔩',
+        type: 'mixed',
+        description: 'Inspeksi mesin casting iron untuk pemasangan stub ke yoke',
+        visual: [
+          'Seal casting tidak bocor',
+          'Ladle dalam kondisi bersih (tidak ada residual iron)',
+          'Mold/cetakan yoke tidak retak',
+          'Cooling system casting berfungsi',
+          'Emergency stop berfungsi',
+        ],
+        params: [
+          {name:'Suhu molten iron', unit:'°C', min:0, max:1600, spec:'1.250–1.300°C'},
+          {name:'Tekanan hydraulic', unit:'bar', min:0, max:400, spec:'Per nameplate'},
+          {name:'Suhu mold sebelum casting', unit:'°C', min:0, max:300, spec:'150–200°C preheat'},
+        ],
+        checkpoints: [
+          {name:'Casting Machine #1', group:'Casting Iron'},
+          {name:'Casting Machine #2', group:'Casting Iron'},
+          {name:'Casting Machine #3', group:'Casting Iron'},
+          {name:'Casting Machine #4', group:'Casting Iron'},
+        ]
+      },
+      {
+        id: 'stub-pulling', name: 'Stub Pulling Machine', icon: '💪',
+        type: 'mixed',
+        description: 'Inspeksi mesin pencabut stub dari spent anode',
+        visual: [
+          'Gripper/chuck tidak aus berlebihan',
+          'Hydraulic system tidak bocor',
+          'Safety guard terpasang',
+          'Alat ukur pull force terkalibrasi',
+        ],
+        params: [
+          {name:'Pull force rata-rata', unit:'kN', min:0, max:100, spec:'≥45 kN'},
+          {name:'Jumlah yoke diproses', unit:'unit', min:0, max:500, spec:'Per target shift'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'carbon-recycle', name: 'Carbon Recycle System', icon: '♻️',
+        type: 'mixed',
+        description: 'Inspeksi sistem daur ulang carbon dari spent anode',
+        visual: [
+          'Jaw crusher tidak aus berlebihan',
+          'Screen/vibrating screen tidak sobek',
+          'Belt conveyor carbon normal',
+          'Dust collection aktif',
+        ],
+        params: [
+          {name:'Carbon recycle processed', unit:'unit', min:0, max:500, spec:'Per target shift'},
+          {name:'Recovery rate carbon', unit:'%', min:0, max:100, spec:'≥85%'},
+          {name:'Ukuran partikel output', unit:'mm', min:0, max:50, spec:'≤25 mm'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'rodded-anode-qc', name: 'QC Rodded Anode', icon: '✅',
+        type: 'mixed',
+        description: 'Inspeksi kualitas rodded anode sebelum dikirim ke pot',
+        visual: [
+          'Tidak ada retakan pada anode block setelah rodding',
+          'Casting iron joint kuat (tidak ada celah)',
+          'Permukaan anode bebas kontaminasi',
+          'Dimensi stub sesuai spesifikasi',
+        ],
+        params: [
+          {name:'Pull test force (sampel)', unit:'kN', min:0, max:100, spec:'≥45 kN'},
+          {name:'Jumlah reject hari ini', unit:'unit', min:0, max:50, spec:'≤2% total produksi'},
+          {name:'% reject terhadap total', unit:'%', min:0, max:20, spec:'≤2%'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'yoke-cleaning', name: 'Yoke Cleaning Station', icon: '🧹',
+        type: 'visual',
+        description: 'Inspeksi area pembersihan yoke dari sisa carbon',
+        visual: [
+          'Sandblasting/shot blasting berfungsi normal',
+          'Tidak ada yoke yang retak/deformasi',
+          'Area kerja bersih dan aman',
+          'APD tersedia lengkap',
+        ],
+        checkpoints: []
+      }
+    ]
+  },
+  casting: {
+    label: 'Casting (Ingot)',
+    color: '#2dd4bf',
+    items: [
+      {
+        id: 'tapping-crane', name: 'Tapping Crane & Ladle', icon: '🏗️',
+        type: 'mixed',
+        description: 'Inspeksi crane penyadap metal cair dari pot',
+        visual: [
+          'Kondisi crane rail tidak retak',
+          'Ladle tidak retak atau bocor',
+          'Preheating ladle sudah dilakukan',
+          'Crane limit switch berfungsi',
+          'Operator menggunakan APD lengkap',
+        ],
+        params: [
+          {name:'Suhu ladle preheat', unit:'°C', min:0, max:900, spec:'≥700°C preheat'},
+          {name:'Kapasitas tap per ladle', unit:'ton', min:0, max:15, spec:'8–10 ton/ladle'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'casting-machine', name: 'Casting Machine (Ingot Mold)', icon: '🏭',
+        type: 'mixed',
+        description: 'Inspeksi mesin cetak ingot aluminium',
+        visual: [
+          'Mold bersih (tidak ada residu aluminium)',
+          'Release agent sudah diaplikasikan',
+          'Conveyor casting machine normal',
+          'Water cooling spray berfungsi',
+          'Sistem extraction (knocker) berfungsi',
+        ],
+        params: [
+          {name:'Suhu metal saat pouring', unit:'°C', min:0, max:900, spec:'700–760°C'},
+          {name:'Kecepatan conveyor casting', unit:'m/min', min:0, max:20, spec:'Per target produksi'},
+          {name:'Suhu ingot saat keluar cetakan', unit:'°C', min:0, max:500, spec:'≤300°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'degassing', name: 'Degassing Unit', icon: '💨',
+        type: 'mixed',
+        description: 'Inspeksi unit degassing aluminium cair sebelum casting',
+        visual: [
+          'Rotor degassing tidak aus berlebihan',
+          'Gas N₂/Cl₂ supply berfungsi normal',
+          'Tidak ada kebocoran gas pada sistem',
+          'Probe thermocouple metal terkalibrasi',
+        ],
+        params: [
+          {name:'Waktu degassing per batch', unit:'menit', min:0, max:30, spec:'15–20 menit'},
+          {name:'Suhu metal setelah degassing', unit:'°C', min:0, max:800, spec:'720–750°C'},
+          {name:'Densitas Index (%)', unit:'%', min:0, max:20, spec:'≤3%'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'ingot-qc', name: 'QC Visual Ingot', icon: '🔍',
+        type: 'mixed',
+        description: 'Inspeksi visual kualitas aluminium ingot setelah casting',
+        visual: [
+          'Tidak ada shrinkage/lubang pada permukaan ingot',
+          'Tidak ada cold shut (lipatan permukaan)',
+          'Dimensi ingot sesuai standar (650x125x60 mm)',
+          'Tidak ada inklusi/kotoran terlihat',
+          'Berat ingot sesuai spesifikasi',
+        ],
+        params: [
+          {name:'Berat per ingot', unit:'kg', min:0, max:30, spec:'22–23 kg/batang'},
+          {name:'Kemurnian Al (dari Lab)', unit:'%', min:99, max:100, spec:'≥99.70%'},
+          {name:'Jumlah ingot reject shift ini', unit:'batang', min:0, max:200, spec:'≤1%'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'stacking-bundling', name: 'Stacking & Bundling Ingot', icon: '📦',
+        type: 'visual',
+        description: 'Inspeksi proses penumpukan dan pengikatan ingot untuk pengiriman',
+        visual: [
+          'Stacking sesuai standar (tidak miring berlebih)',
+          'Banding/strap terpasang kencang',
+          'Label/marking bundle sudah terisi',
+          'Area storage bersih dan aman',
+          'Forklift area diberi marking yang jelas',
+        ],
+        checkpoints: []
+      }
+    ]
+  },
+  purifikasi: {
+    label: 'Purifikasi',
+    color: '#4ade80',
+    items: [
+      {
+        id: 'gtc', name: 'Gas Treatment Centre (GTC)', icon: '💨',
+        type: 'mixed',
+        description: 'Inspeksi sistem utama penanganan gas buang HF, SO₂, dan debu',
+        visual: [
+          'Scrubber tidak bocor pada flange/pipa',
+          'Reaktor dry scrubbing beroperasi normal',
+          'Filter bag tidak sobek (opacity rendah)',
+          'Fan induced draft berfungsi normal',
+          'Tidak ada alarm HF sensor',
+        ],
+        params: [
+          {name:'Konsentrasi HF stack', unit:'mg/Nm³', min:0, max:5, spec:'≤1 mg/Nm³'},
+          {name:'Emisi HF spesifik', unit:'kg/t Al', min:0, max:2, spec:'≤1.0 kg/t Al'},
+          {name:'Efisiensi penangkapan GTC', unit:'%', min:90, max:100, spec:'≥97%'},
+          {name:'Aliran gas buang GTC', unit:'m³/hr', min:0, max:200000, spec:'Per desain'},
+          {name:'Differential pressure filter', unit:'mmH₂O', min:0, max:300, spec:'80–200 mmH₂O'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'sf6-system', name: 'Sistem SF₆ (Sulfur Hexafluoride)', icon: '⚗️',
+        type: 'mixed',
+        description: 'Inspeksi sistem penyimpanan dan penggunaan SF₆ untuk pemadaman api & insulating',
+        visual: [
+          'Silinder SF₆ tidak bocor (gunakan detektor)',
+          'Pressure gauge silinder normal',
+          'Label/marking silinder terbaca jelas',
+          'Tidak ada personel tanpa APD di area SF₆',
+          'Sistem ventilasi area penyimpanan aktif',
+        ],
+        params: [
+          {name:'Tekanan silinder SF₆', unit:'bar', min:0, max:80, spec:'50–60 bar (20°C)'},
+          {name:'Sisa berat SF₆ dalam silinder', unit:'kg', min:0, max:100, spec:'Per schedule'},
+          {name:'Konsentrasi SF₆ ruangan', unit:'ppm', min:0, max:1000, spec:'≤1.000 ppm (TWA)'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'n2-system', name: 'Sistem N₂ (Nitrogen)', icon: '🫧',
+        type: 'mixed',
+        description: 'Inspeksi sistem nitrogen untuk inerting dan proses smelter',
+        visual: [
+          'Tangki/silinder N₂ tidak bocor',
+          'Pressure regulator berfungsi normal',
+          'Jalur pipa N₂ tidak bocor',
+          'Sistem alarm O₂ deficiency aktif di area N₂',
+          'APD (self-contained breathing) tersedia',
+        ],
+        params: [
+          {name:'Tekanan supply N₂ header', unit:'barg', min:0, max:20, spec:'5–8 barg'},
+          {name:'Flow rate N₂ ke degassing', unit:'Nm³/hr', min:0, max:500, spec:'Per proses'},
+          {name:'Kemurnian N₂', unit:'%', min:99, max:100, spec:'≥99.9%'},
+          {name:'Level O₂ area N₂ (detektor)', unit:'%', min:0, max:21, spec:'≥19.5% (min aman)'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'hf-monitoring', name: 'Monitoring Emisi HF & SO₂', icon: '📡',
+        type: 'mixed',
+        description: 'Pembacaan monitor emisi HF dan SO₂ secara kontinu',
+        visual: [
+          'CEMS (Continuous Emission Monitoring) aktif',
+          'Probe sampling tidak tersumbat',
+          'Data logger merekam normal',
+        ],
+        params: [
+          {name:'Konsentrasi SO₂ stack', unit:'ppm', min:0, max:100, spec:'≤25 ppm'},
+          {name:'Konsentrasi debu partikel', unit:'mg/Nm³', min:0, max:100, spec:'≤50 mg/Nm³'},
+          {name:'Konsentrasi CO₂', unit:'%', min:0, max:20, spec:'Per perhitungan'},
+          {name:'HF ambient area kerja', unit:'ppm', min:0, max:5, spec:'≤0.5 ppm TWA'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'cryolite-recovery', name: 'Cryolite Recovery', icon: '♻️',
+        type: 'mixed',
+        description: 'Inspeksi sistem recovery fluoride menjadi alumina fluorinated',
+        visual: [
+          'Silo alumina fluorinated tidak bocor',
+          'Conveyor pneumatik alumina berjalan normal',
+          'Weighing system terkalibrasi',
+        ],
+        params: [
+          {name:'Fluoride recovery rate', unit:'%', min:0, max:100, spec:'≥95%'},
+          {name:'Alumina fluorinated dihasilkan', unit:'ton/hari', min:0, max:50, spec:'Per produksi'},
+          {name:'Kadar F dalam alumina', unit:'%', min:0, max:10, spec:'3–6%'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'wastewater-purifikasi', name: 'Wastewater Treatment Purifikasi', icon: '💧',
+        type: 'mixed',
+        description: 'Inspeksi sistem pengolahan air limbah scrubber',
+        visual: [
+          'Bak netralisasi tidak meluap',
+          'Pompa dosing kimia berfungsi',
+          'Filter press beroperasi normal',
+        ],
+        params: [
+          {name:'pH effluent akhir', unit:'', min:0, max:14, spec:'6.5–8.5'},
+          {name:'Kadar F dalam effluent', unit:'mg/L', min:0, max:50, spec:'≤15 mg/L'},
+        ],
+        checkpoints: []
+      }
+    ]
+  },
+  production: {
+    label: 'Production (Pot)',
+    color: '#38bdf8',
+    items: [
+      {
+        id: 'pot-visual', name: 'Visual Inspection Pot Line', icon: '🔭',
+        type: 'mixed',
+        description: 'Inspeksi visual harian seluruh pot elektrolisis',
+        visual: [
+          'Tidak ada api/ledakan bath pada pot',
+          'Tutup pot (hood) tertutup rapat',
+          'Tidak ada bocoran bath (leaking pot)',
+          'Level bath/metal terlihat normal dari sight glass',
+          'Tidak ada anode yang terlalu pendek/habis',
+        ],
+        params: [
+          {name:'Jumlah pot aktif hari ini', unit:'pot', min:0, max:372, spec:'Target ≥360 pot'},
+          {name:'Jumlah pot anode effect hari ini', unit:'AE', min:0, max:50, spec:'≤0.10 AE/pot·hr'},
+          {name:'Arus rata-rata per pot', unit:'kA', min:0, max:2, spec:'~1.35 kA/pot (500kA/372)'},
+          {name:'Tegangan rata-rata per pot', unit:'V', min:3.5, max:5.5, spec:'4.0–4.3 V/pot'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'anode-change', name: 'Anode Change Inspection', icon: '🔄',
+        type: 'mixed',
+        description: 'Inspeksi kegiatan penggantian anoda di pot',
+        visual: [
+          'Anoda baru sesuai dimensi yang dipersyaratkan',
+          'Tidak ada kontaminasi pada anoda baru',
+          'Positioning anoda baru sudah benar',
+          'Cover plate kembali terpasang',
+          'Anode butt (spent) sudah diambil dan dicatat',
+        ],
+        params: [
+          {name:'Jumlah anode change hari ini', unit:'pot', min:0, max:100, spec:'Per jadwal'},
+          {name:'Tinggi anoda baru', unit:'cm', min:0, max:80, spec:'55–65 cm'},
+          {name:'Sisa anoda butt (spent)', unit:'cm', min:0, max:30, spec:'15–20 cm'},
+          {name:'Tegangan pot setelah AC', unit:'V', min:3.5, max:6.0, spec:'≤4.8 V (spike diizinkan 24 jam)'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'tapping-operation', name: 'Metal Tapping Operation', icon: '🏗️',
+        type: 'mixed',
+        description: 'Inspeksi operasi penyadapan metal cair dari pot',
+        visual: [
+          'Vacuum tapping tool berfungsi normal',
+          'Tidak ada percikan bath yang berlebihan saat tapping',
+          'Personal protection tapping lengkap digunakan',
+          'Metal cover bath kembali setelah tapping',
+        ],
+        params: [
+          {name:'Volume metal per pot tapping', unit:'ton', min:0, max:15, spec:'8–10 ton/tap'},
+          {name:'Jumlah pot ditapping hari ini', unit:'pot', min:0, max:150, spec:'Per jadwal'},
+          {name:'Suhu metal saat keluar pot', unit:'°C', min:0, max:1000, spec:'940–980°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'bath-chemistry', name: 'Bath Chemistry Monitoring', icon: '🧪',
+        type: 'params-only',
+        description: 'Pengukuran kimia bath elektrolisis (berkoordinasi dengan Lab)',
+        params: [
+          {name:'Molecular Ratio (NaF/AlF₃)', unit:'MR', min:1.5, max:3.0, spec:'2.0–2.6 MR'},
+          {name:'Excess AlF₃', unit:'%', min:0, max:20, spec:'6–12%'},
+          {name:'CaF₂ content', unit:'%', min:0, max:10, spec:'4–8%'},
+          {name:'Al₂O₃ content dalam bath', unit:'%', min:0, max:10, spec:'2–4% (operasional)'},
+          {name:'Bath temperature (probe)', unit:'°C', min:900, max:1000, spec:'940–975°C'},
+          {name:'Bath level', unit:'cm', min:0, max:30, spec:'18–22 cm'},
+          {name:'Metal level', unit:'cm', min:0, max:30, spec:'18–22 cm'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'pot-shell', name: 'Inspeksi Shell Pot (Thermal)', icon: '🌡️',
+        type: 'mixed',
+        description: 'Pengukuran suhu dinding/shell pot untuk deteksi keausan lining',
+        visual: [
+          'Tidak ada hot spot merah pada shell pot',
+          'Panel shell pot tidak berdeformasi',
+          'Tidak ada rembesan bath dari shell',
+          'Busbar koneksi pot tidak terlalu panas',
+        ],
+        params: [
+          {name:'Suhu shell sisi panjang (maks)', unit:'°C', min:0, max:400, spec:'≤280°C'},
+          {name:'Suhu shell sisi pendek (maks)', unit:'°C', min:0, max:350, spec:'≤250°C'},
+          {name:'Suhu cathode collector bar', unit:'°C', min:0, max:300, spec:'≤200°C'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'alumina-feeding', name: 'Alumina Feeding System', icon: '⚙️',
+        type: 'mixed',
+        description: 'Inspeksi sistem pengumpan alumina ke pot',
+        visual: [
+          'Point feeder beroperasi normal (tidak macet)',
+          'Silo alumina tidak tersumbat',
+          'Conveyor alumina tidak spillage',
+          'Tidak ada segregasi alumina berlebihan',
+        ],
+        params: [
+          {name:'Konsumsi alumina per pot/hari', unit:'kg/pot', min:0, max:200, spec:'~90–110 kg/pot·hari'},
+          {name:'Frekuensi feeding', unit:'kali/hr', min:0, max:20, spec:'Per ACD control'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'pot-overhaul', name: 'Pot Relining / Overhaul Check', icon: '🔧',
+        type: 'visual',
+        description: 'Inspeksi pot yang sedang dalam proses relining atau baru selesai',
+        visual: [
+          'Cathode block terpasang dengan benar',
+          'Seal/mortar joints rapi',
+          'Collector bar terpasang dan tersambung',
+          'Preheat prosedur diikuti',
+          'Tidak ada material asing di dalam pot',
+          'Dokumentasi relining sudah lengkap',
+        ],
+        checkpoints: []
+      }
+    ]
+  },
+  lab: {
+    label: 'Laboratorium',
+    color: '#c084fc',
+    items: [
+      {
+        id: 'equipment-calibration', name: 'Kalibrasi Alat Lab', icon: '🔬',
+        type: 'mixed',
+        description: 'Inspeksi dan verifikasi kalibrasi peralatan laboratorium',
+        visual: [
+          'Sertifikat kalibrasi XRF masih berlaku',
+          'Sertifikat kalibrasi timbangan masih berlaku',
+          'Reference standard tersimpan dengan benar',
+          'Logbook kalibrasi diisi rutin',
+        ],
+        params: [
+          {name:'Deviasi XRF vs standar', unit:'%', min:0, max:5, spec:'≤0.5%'},
+          {name:'Deviasi timbangan vs massa acuan', unit:'mg', min:0, max:10, spec:'≤0.5 mg'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'sample-management', name: 'Manajemen Sample', icon: '🧫',
+        type: 'mixed',
+        description: 'Inspeksi pengelolaan sampel dari berbagai departemen',
+        visual: [
+          'Labelling sampel jelas dan tidak salah',
+          'Penyimpanan sampel sesuai kondisi yang dipersyaratkan',
+          'Tidak ada sampel yang kadaluarsa/tidak terproses',
+          'Chain of custody diisi lengkap',
+        ],
+        params: [
+          {name:'Jumlah sampel pending dianalisis', unit:'sampel', min:0, max:100, spec:'≤5 sampel >4 jam'},
+          {name:'TAT (Turn Around Time) rata-rata', unit:'jam', min:0, max:24, spec:'≤4 jam'},
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'lab-safety', name: 'K3 Laboratorium', icon: '🦺',
+        type: 'visual',
+        description: 'Inspeksi keselamatan kerja laboratorium',
+        visual: [
+          'Eye wash station berfungsi dan tidak tersumbat',
+          'Safety shower berfungsi',
+          'MSDS/SDS tersedia untuk semua bahan kimia',
+          'Lemari asam (fume hood) berfungsi',
+          'APD lengkap tersedia di titik yang ditentukan',
+          'Pemadam api sesuai jenis tersedia',
+          'Pembuangan limbah kimia sesuai prosedur',
+        ],
+        checkpoints: []
+      },
+      {
+        id: 'bath-analysis', name: 'Analisis Bath Elektrolisis', icon: '⚗️',
+        type: 'params-only',
+        description: 'Analisis kimia rutin sampel bath elektrolisis dari pot',
+        params: [
+          {name:'Molecular Ratio (NaF/AlF₃)', unit:'MR', min:1.5, max:3.5, spec:'2.0–2.6 MR'},
+          {name:'Excess AlF₃', unit:'%', min:0, max:20, spec:'6–12%'},
+          {name:'CaF₂ content', unit:'%', min:0, max:15, spec:'4–8%'},
+          {name:'MgF₂ content', unit:'%', min:0, max:5, spec:'≤2%'},
+          {name:'Al₂O₃ sisa dalam bath', unit:'%', min:0, max:10, spec:'2–4%'},
+          {name:'Li content (jika applicable)', unit:'ppm', min:0, max:500, spec:'Per spec pot'},
+        ],
+        checkpoints: []
+      }
+    ]
+  }
+};
+
+// ====================================================
+// STATE
+// ====================================================
+let selectedDept = null;
+let selectedItem = null;
+let inspectionData = {};
+let formValues = {};
+let visualValues = {};
+let checkpointValues = {};
+let savedInspections = [];
+let currentDeptAdmin = {};
+
+// ====================================================
+// DEPT SELECTION
+// ====================================================
+function selectDept(deptId) {
+  selectedDept = deptId;
+  selectedItem = null;
+  formValues = {};
+  visualValues = {};
+  checkpointValues = {};
+
+  // Update visual selection
+  document.querySelectorAll('.dept-card').forEach(c => c.classList.remove('selected'));
+  const dc = document.getElementById('dc-'+deptId);
+  if (dc) dc.classList.add('selected');
+
+  // Update stepper
+  setStep(2);
+
+  // Show item list
+  const dept = INSP_DATA[deptId];
+  document.getElementById('itemListTitle').innerHTML = `🔎 Step 2 — ${dept.label}`;
+  const body = document.getElementById('itemListBody');
+  body.innerHTML = '';
+  dept.items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'insp-item';
+    div.id = 'ii-'+item.id;
+    div.onclick = () => selectItem(deptId, item.id);
+    const typeLabel = item.type === 'visual' ? 'Visual Only' : item.type === 'params-only' ? 'Pengukuran' : 'Visual + Pengukuran';
+    const typeColor = item.type === 'visual' ? '#4ade80' : item.type === 'params-only' ? '#38bdf8' : '#fbbf24';
+    div.innerHTML = `
+      <div class="insp-icon" style="background:${dept.color}18;color:${dept.color}">${item.icon}</div>
+      <div style="flex:1">
+        <div class="insp-name">${item.name}</div>
+        <div class="insp-meta">${item.description}</div>
+      </div>
+      <span style="font-size:11px;font-weight:700;color:${typeColor};background:${typeColor}18;padding:3px 8px;border-radius:10px;white-space:nowrap">${typeLabel}</span>
+      <div class="insp-arrow">›</div>`;
+    body.appendChild(div);
+  });
+
+  document.getElementById('cardItems').style.display = '';
+  document.getElementById('formArea').style.display = '';
+  document.getElementById('formArea').className = 'visible';
+  document.getElementById('cardNotes').style.display = 'none';
+  document.getElementById('formActions').style.display = 'none';
+  document.getElementById('formBody').innerHTML = `<div class="empty-state"><div class="empty-icon">👆</div><div class="empty-title">Pilih item inspeksi di sebelah kiri</div><div class="empty-sub">Form akan muncul sesuai jenis inspeksi</div></div>`;
+  document.getElementById('formTypeBadge').textContent = 'Pilih item dulu';
+  document.getElementById('formTypeBadge').className = 'badge ba';
+  
+  // Auto scroll to items on mobile
+  if (window.innerWidth <= 768) {
+    document.getElementById('cardItems').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// ====================================================
+// ITEM SELECTION
+// ====================================================
+function selectItem(deptId, itemId) {
+  selectedItem = itemId;
+  formValues = {};
+  visualValues = {};
+  checkpointValues = {};
+
+  document.querySelectorAll('.insp-item').forEach(el => el.classList.remove('selected'));
+  const el = document.getElementById('ii-'+itemId);
+  if (el) el.classList.add('selected');
+
+  setStep(3);
+
+  const dept = INSP_DATA[deptId];
+  const item = dept.items.find(i => i.id === itemId);
+  if (!item) return;
+
+  document.getElementById('formTitle').textContent = `📋 ${item.name}`;
+  const typeLabel = item.type === 'visual' ? 'Visual Only' : item.type === 'params-only' ? 'Pengukuran' : 'Visual + Pengukuran';
+  const badgeClass = item.type === 'visual' ? 'badge bg' : item.type === 'params-only' ? 'badge bb' : 'badge ba';
+  document.getElementById('formTypeBadge').textContent = typeLabel;
+  document.getElementById('formTypeBadge').className = badgeClass;
+
+  let html = '';
+
+  // CHECKPOINTS (like the original form - HV bushing, LV bushing etc)
+  if (item.checkpoints && item.checkpoints.length > 0) {
+    const groups = [...new Set(item.checkpoints.map(c => c.group))];
+    html += `<div class="form-section"><div class="fs-title">🗂️ Checklist Per Unit / Komponen</div>`;
+    groups.forEach(grp => {
+      html += `<div style="font-size:12px;color:var(--text3);font-weight:700;margin:10px 0 6px;text-transform:uppercase;letter-spacing:.05em">${grp}</div>`;
+      html += `<div class="visual-grid">`;
+      item.checkpoints.filter(c => c.group === grp).forEach((cp, i) => {
+        html += `<div class="visual-row">
+          <div class="visual-label" style="font-weight:600">${cp.name}</div>
+          <div class="visual-options">
+            <div class="vopt ok" onclick="setCheckpoint('${cp.name}','OK',this)">✓ OK</div>
+            <div class="vopt nok" onclick="setCheckpoint('${cp.name}','NOK',this)">✗ NOK</div>
+            <div class="vopt na" onclick="setCheckpoint('${cp.name}','N/A',this)">N/A</div>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  // VISUAL CHECKS
+  if (item.visual && item.visual.length > 0 && item.type !== 'params-only') {
+    html += `<div class="form-section"><div class="fs-title">👁️ Visual Check</div><div class="visual-grid">`;
+    item.visual.forEach((v, i) => {
+      html += `<div class="visual-row">
+        <div class="visual-label">${v}</div>
+        <div class="visual-options">
+          <div class="vopt ok" onclick="setVisual(${i},'OK',this)">✓ OK</div>
+          <div class="vopt nok" onclick="setVisual(${i},'NOK',this)">✗ NOK</div>
+          <div class="vopt na" onclick="setVisual(${i},'N/A',this)">N/A</div>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // PARAMS
+  if (item.params && item.params.length > 0 && item.type !== 'visual') {
+    html += `<div class="form-section"><div class="fs-title">📏 Pengukuran Parameter</div>`;
+    // For kiln area (54 points), group in rows of 9
+    if (item.params.length > 20) {
+      html += `<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(100px, 1fr));gap:10px">`;
+      item.params.forEach((p, i) => {
+        html += `<div class="param-box" style="padding:10px">
+          <div class="param-label" style="font-size:11px">${p.name} <span class="param-unit">${p.unit}</span></div>
+          <input type="number" class="param-input" style="font-size:13px;padding:6px 10px" id="param_${i}" placeholder="0" oninput="setParam(${i}, this.value, ${p.min}, ${p.max})">
+          <div class="param-range" style="font-size:10px">${p.spec}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    } else {
+      html += `<div class="param-grid">`;
+      item.params.forEach((p, i) => {
+        html += `<div class="param-box">
+          <div class="param-label">${p.name} <span class="param-unit">${p.unit}</span><div class="param-status" id="ps_${i}" style="background:var(--bg5)"></div></div>
+          <input type="number" class="param-input" id="param_${i}" placeholder="0" oninput="setParam(${i}, this.value, ${p.min}, ${p.max})">
+          <div class="param-range">${p.spec}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (!html) html = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Form belum tersedia</div></div>`;
+
+  document.getElementById('formBody').innerHTML = html;
+  document.getElementById('cardNotes').style.display = '';
+  document.getElementById('formActions').style.display = 'flex';
+  
+  // Auto scroll to form on mobile
+  if (window.innerWidth <= 768) {
+    document.getElementById('cardForm').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// ====================================================
+// FIELD SETTERS
+// ====================================================
+function setVisual(index, val, el) {
+  visualValues[index] = val;
+  const row = el.closest('.visual-row');
+  row.querySelectorAll('.vopt').forEach(v => v.classList.remove('selected'));
+  el.classList.add('selected');
+  const hasNOK = Object.values(visualValues).some(v => v === 'NOK');
+  if (hasNOK) {
+    document.getElementById('followUp').value = 'monitor';
+  }
+}
+
+function setCheckpoint(name, val, el) {
+  checkpointValues[name] = val;
+  const row = el.closest('.visual-row');
+  row.querySelectorAll('.vopt').forEach(v => v.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function setParam(index, val, min, max) {
+  formValues[index] = val;
+  const ps = document.getElementById('ps_'+index);
+  if (!ps) return;
+  const n = parseFloat(val);
+  if (isNaN(n)) { ps.style.background = 'var(--bg5)'; return; }
+  const range = max - min;
+  const warningLow = min + range * 0.1;
+  const warningHigh = max - range * 0.1;
+  if (n < warningLow || n > warningHigh) {
+    ps.style.background = 'var(--red)';
+    ps.className = 'param-status nok';
+  } else if (n < min + range * 0.2 || n > max - range * 0.2) {
+    ps.style.background = 'var(--amber)';
+    ps.className = 'param-status warn';
+  } else {
+    ps.style.background = 'var(--green)';
+    ps.className = 'param-status ok';
+  }
+}
+
+// ====================================================
+// STEPPER
+// ====================================================
+function setStep(n) {
+  for (let i = 1; i <= 5; i++) {
+    const circle = document.getElementById('st'+i);
+    const label = document.getElementById('stl'+i);
+    if (!circle) continue;
+    if (i < n) {
+      circle.className = 'step-circle done';
+      circle.textContent = '✓';
+      label.className = 'step-label';
+    } else if (i === n) {
+      circle.className = 'step-circle active';
+      circle.textContent = i;
+      label.className = 'step-label active';
+    } else {
+      circle.className = 'step-circle';
+      circle.textContent = i;
+      label.className = 'step-label';
+    }
+  }
+  for (let i = 1; i <= 4; i++) {
+    const line = document.getElementById('sl'+i+(i+1));
+    if (line) line.className = 'step-line' + (i < n ? ' done' : '');
+  }
+}
+
+// ====================================================
+// PREVIEW & SUBMIT
+// ====================================================
+function previewSubmit() {
+  if (!selectedDept || !selectedItem) {
+    showToast('⚠️ Pilih departemen dan item inspeksi terlebih dahulu!');
+    return;
+  }
+  const name = document.getElementById('inspName').value.trim();
+  const nik = document.getElementById('inspNIK').value.trim();
+  const dt = document.getElementById('inspDateTime').value;
+  if (!name || !nik || !dt) {
+    showToast('⚠️ Lengkapi data inspektor terlebih dahulu!');
+    return;
+  }
+  setStep(4);
+  const dept = INSP_DATA[selectedDept];
+  const item = dept.items.find(i => i.id === selectedItem);
+  const visualCount = Object.keys(visualValues).length;
+  const checkCount = Object.keys(checkpointValues).length;
+  const paramCount = Object.keys(formValues).length;
+  const totalVisual = (item.visual || []).length;
+  const totalCheck = (item.checkpoints || []).length;
+  const totalParam = (item.params || []).length;
+  const nokCount = Object.values(visualValues).filter(v => v === 'NOK').length;
+  const followUp = document.getElementById('followUp').value;
+  const fLabel = {none:'Tidak diperlukan', monitor:'Perlu dimonitor', maintenance:'Jadwalkan maintenance', urgent:'⚠️ Tindakan Segera', shutdown:'🚨 Shutdown Required'};
+  let overallStatus = 'Normal';
+  if (followUp === 'shutdown') overallStatus = '🚨 Shutdown';
+  else if (followUp === 'urgent') overallStatus = '⚠️ Urgent';
+  else if (nokCount > 0 || followUp !== 'none') overallStatus = '⚠️ Perlu Tindak Lanjut';
+
+  document.getElementById('confirmSummary').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:14px">
+      <div><span style="color:var(--text3)">Departemen</span><div style="font-weight:700;margin-top:2px">${dept.label}</div></div>
+      <div><span style="color:var(--text3)">Item Inspeksi</span><div style="font-weight:700;margin-top:2px">${item.icon} ${item.name}</div></div>
+      <div><span style="color:var(--text3)">Inspektor</span><div style="font-weight:700;margin-top:2px">${name} (${nik})</div></div>
+      <div><span style="color:var(--text3)">Waktu</span><div style="font-weight:700;margin-top:2px">${dt.replace('T',' ')}</div></div>
+      <div><span style="color:var(--text3)">Visual check</span><div style="font-weight:700;margin-top:2px">${visualCount}/${totalVisual} diisi · ${nokCount} NOK</div></div>
+      <div><span style="color:var(--text3)">Pengukuran</span><div style="font-weight:700;margin-top:2px">${paramCount}/${totalParam} diisi</div></div>
+      <div style="grid-column: span 2"><span style="color:var(--text3)">Tindak Lanjut</span><div style="font-weight:700;margin-top:2px">${fLabel[followUp]||followUp}</div></div>
+      <div style="grid-column: span 2"><span style="color:var(--text3)">Status Keseluruhan</span><div style="font-weight:700;margin-top:2px">${overallStatus}</div></div>
+    </div>`;
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalConfirm').classList.remove('open');
+}
+
+function finalSubmit() {
+  setStep(5);
+  closeModal();
+  const dept = INSP_DATA[selectedDept];
+  const item = dept.items.find(i => i.id === selectedItem);
+  const dt = document.getElementById('inspDateTime').value;
+  const name = document.getElementById('inspName').value;
+  const followUp = document.getElementById('followUp').value;
+  const nokCount = Object.values(visualValues).filter(v => v === 'NOK').length;
+  let status = 'Normal';
+  if (followUp === 'shutdown') status = 'Shutdown';
+  else if (followUp === 'urgent') status = 'Urgent';
+  else if (nokCount > 0 || followUp !== 'none') status = 'Follow-up';
+
+  const rec = {
+    id: 'INS-' + String(savedInspections.length + 300).padStart(4,'0'),
+    datetime: dt.replace('T',' '),
+    dept: dept.label,
+    item: item.name,
+    inspector: name,
+    followUp: followUp,
+    status: status,
+    nokCount: nokCount,
+    paramCount: Object.keys(formValues).length,
+    notes: document.getElementById('inspNotes').value
+  };
+  savedInspections.unshift(rec);
+  updateStats();
+  renderHistory();
+  showToast('✅ Inspeksi berhasil disimpan! ID: ' + rec.id);
+  setTimeout(() => {
+    resetForm();
+    showTab('history');
+  }, 1500);
+}
+
+function resetForm() {
+  selectedItem = null;
+  formValues = {};
+  visualValues = {};
+  checkpointValues = {};
+  document.querySelectorAll('.insp-item').forEach(el => el.classList.remove('selected'));
+  document.getElementById('formBody').innerHTML = `<div class="empty-state"><div class="empty-icon">👈</div><div class="empty-title">Pilih item inspeksi</div><div class="empty-sub">Form akan muncul otomatis sesuai jenis inspeksi</div></div>`;
+  document.getElementById('cardNotes').style.display = 'none';
+  document.getElementById('formActions').style.display = 'none';
+  document.getElementById('inspNotes').value = '';
+  document.getElementById('followUp').value = 'none';
+  document.getElementById('formTypeBadge').textContent = 'Pilih item dulu';
+  setStep(selectedDept ? 2 : 1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetDept() {
+  selectedDept = null;
+  selectedItem = null;
+  document.querySelectorAll('.dept-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('cardItems').style.display = 'none';
+  document.getElementById('formArea').style.display = 'none';
+  setStep(1);
+}
+
+// ====================================================
+// HISTORY
+// ====================================================
+const SAMPLE_HISTORY = [
+  {id:'INS-0247', datetime:'03/06/2026 09:15', dept:'Power – Electrical', item:'Trafo Daya #1', inspector:'M. Fadillah', followUp:'none', status:'Normal', nokCount:0, paramCount:6, notes:''},
+  {id:'INS-0246', datetime:'03/06/2026 08:30', dept:'Power – Electrical', item:'Rectifier Unit 1–6', inspector:'Ahmad F.', followUp:'monitor', status:'Follow-up', nokCount:1, paramCount:4, notes:'R-Unit 3 arus turun'},
+  {id:'INS-0245', datetime:'03/06/2026 07:45', dept:'Kalsinasi', item:'Rotary Kiln 1', inspector:'Hendra S.', followUp:'none', status:'Normal', nokCount:0, paramCount:6, notes:''},
+  {id:'INS-0244', datetime:'02/06/2026 14:00', dept:'Production (Pot)', item:'Visual Inspection Pot Line', inspector:'M. Fadillah', followUp:'none', status:'Normal', nokCount:0, paramCount:4, notes:''},
+  {id:'INS-0243', datetime:'02/06/2026 11:30', dept:'Baking', item:'Ring Furnace (F1–F6)', inspector:'Fajar M.', followUp:'monitor', status:'Follow-up', nokCount:1, paramCount:5, notes:'F3 suhu drop sempat'},
+  {id:'INS-0242', datetime:'02/06/2026 09:00', dept:'Purifikasi', item:'Monitoring Emisi HF & SO₂', inspector:'Nina W.', followUp:'none', status:'Normal', nokCount:0, paramCount:4, notes:''},
+  {id:'INS-0241', datetime:'02/06/2026 08:00', dept:'Power – Electrical', item:'Trafo Daya #3', inspector:'Ahmad F.', followUp:'monitor', status:'Follow-up', nokCount:2, paramCount:5, notes:'LV bushing suhu +12°C'},
+  {id:'INS-0238', datetime:'01/06/2026 15:00', dept:'Kalsinasi', item:'Rotary Kiln 2', inspector:'Rudi P.', followUp:'maintenance', status:'Follow-up', nokCount:1, paramCount:6, notes:'Kebocoran debu area discharge'},
+];
+
+function renderHistory(filter = '', deptFilter = 'all', statusFilter = 'all') {
+  const allRecs = [...savedInspections, ...SAMPLE_HISTORY];
+  const tbody = document.getElementById('historyBody');
+  if (!tbody) return;
+  let rows = allRecs.filter(r => {
+    const matchText = !filter || r.id.toLowerCase().includes(filter.toLowerCase()) ||
+      r.dept.toLowerCase().includes(filter.toLowerCase()) ||
+      r.item.toLowerCase().includes(filter.toLowerCase()) ||
+      r.inspector.toLowerCase().includes(filter.toLowerCase());
+    const matchDept = deptFilter === 'all' || r.dept === deptFilter;
+    const matchStatus = statusFilter === 'all' ||
+      (statusFilter === 'ok' && r.status === 'Normal') ||
+      (statusFilter === 'warn' && r.status === 'Follow-up') ||
+      (statusFilter === 'action' && (r.status === 'Urgent' || r.status === 'Shutdown'));
+    return matchText && matchDept && matchStatus;
+  });
+  const fLabel = {none:'—', monitor:'Monitor', maintenance:'Maintenance', urgent:'⚠️ Urgent', shutdown:'🚨 Shutdown'};
+  tbody.innerHTML = rows.map(r => {
+    const sb = r.status === 'Normal' ? 'bg' :
+      (r.status === 'Urgent' || r.status === 'Shutdown') ? 'br' : 'ba';
+    return `<tr>
+      <td style="font-family:var(--mono);font-size:13px">${r.id}</td>
+      <td style="white-space:nowrap;font-size:14px">${r.datetime}</td>
+      <td>${r.dept}</td>
+      <td>${r.item}</td>
+      <td>${r.inspector}</td>
+      <td><span class="badge ${sb}">${r.status}</span>${r.nokCount > 0 ? ` <span style="font-size:12px;color:var(--red);margin-left:4px">${r.nokCount} NOK</span>` : ''}</td>
+      <td><span class="badge bgray" style="font-size:12px">${fLabel[r.followUp]||r.followUp}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-secondary btn-xs" onclick="viewDetail('${r.id}')">Detail</button>
+        <button class="btn btn-secondary btn-xs" onclick="exportSingle('${r.id}')">CSV</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text3)">Tidak ada data ditemukan</td></tr>`;
+}
+
+function filterHistory(val) {
+  const d = document.getElementById('histDeptFilter').value;
+  renderHistory(val, d);
+}
+function filterHistDept(val) {
+  const s = document.getElementById('histSearch').value;
+  renderHistory(s, val);
+}
+function filterHistStatus(val) {
+  const s = document.getElementById('histSearch').value;
+  const d = document.getElementById('histDeptFilter').value;
+  renderHistory(s, d, val);
+}
+
+function viewDetail(id) {
+  const allRecs = [...savedInspections, ...SAMPLE_HISTORY];
+  const r = allRecs.find(x => x.id === id);
+  if (!r) return;
+  showToast(`📋 ${r.id}: ${r.item} — ${r.inspector} — ${r.datetime}`);
+}
+
+function updateStats() {
+  const today = new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'/');
+  const todayCount = savedInspections.filter(r => r.datetime.startsWith(today.split('/').reverse().join('/'))).length;
+  const el = document.getElementById('statToday');
+  if (el) el.textContent = todayCount;
+  const followupCount = savedInspections.filter(r => r.followUp !== 'none').length;
+  const el2 = document.getElementById('statFollowup');
+  if (el2) el2.textContent = followupCount + 3;
+}
+
+// ====================================================
+// EXPORT CSV (DIPERBAIKI DENGAN SEMICOLON)
+// ====================================================
+function exportCSV() {
+  const allRecs = [...savedInspections, ...SAMPLE_HISTORY];
+  const headers = ['ID','Tanggal','Waktu','Departemen','Item Inspeksi','Inspektor','NOK Count','Tindak Lanjut','Status','Catatan'];
+  
+  const rows = allRecs.map(r => {
+    const [d, t] = r.datetime.split(' ');
+    // Escape tanda kutip biar CSV ngga berantakan kalau ada notes yang pakai tanda kutip
+    const safeNotes = (r.notes || '').replace(/"/g, '""');
+    // NAH INI DIA: pakai separator titik koma (;)
+    return [r.id, d||r.datetime, t||'', r.dept, r.item, r.inspector, r.nokCount, r.followUp, r.status, safeNotes].map(v => `"${v}"`).join(';');
+  });
+  
+  // Tambahin BOM (Byte Order Mark) biar Excel ngebaca UTF-8 dengan benar
+  const BOM = '\uFEFF';
+  const csv = BOM + [headers.join(';'), ...rows].join('\n');
+  
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `AlamtriInspect_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ Export CSV berhasil!');
+}
+
+function exportSingle(id) {
+  const allRecs = [...savedInspections, ...SAMPLE_HISTORY];
+  const r = allRecs.find(x => x.id === id);
+  if (!r) return;
+  
+  const headers = ['ID','Tanggal','Waktu','Departemen','Item Inspeksi','Inspektor','NOK Count','Tindak Lanjut','Status','Catatan'];
+  const [d, t] = r.datetime.split(' ');
+  const safeNotes = (r.notes || '').replace(/"/g, '""');
+  // Disini juga diganti separator titik koma (;)
+  const row = [r.id, d||r.datetime, t||'', r.dept, r.item, r.inspector, r.nokCount, r.followUp, r.status, safeNotes].map(v => `"${v}"`).join(';');
+  
+  const BOM = '\uFEFF';
+  const csv = BOM + headers.join(';') + '\n' + row;
+  
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${r.id}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`✅ Export ${r.id} selesai!`);
+}
+
+function doExport() {
+  closeModal2();
+  exportCSV();
+}
+
+function openExport() {
+  const now = new Date();
+  const toStr = now.toISOString().split('T')[0];
+  const fromDate = new Date(now); fromDate.setDate(fromDate.getDate() - 30);
+  const fromStr = fromDate.toISOString().split('T')[0];
+  document.getElementById('expFrom').value = fromStr;
+  document.getElementById('expTo').value = toStr;
+  document.getElementById('modalExport').classList.add('open');
+}
+function closeModal2() {
+  document.getElementById('modalExport').classList.remove('open');
+}
+
+function uploadToNet() {
+  showToast('📤 Mengupload ke AlamtriNet... (simulasi)');
+  setTimeout(() => showToast('✅ Upload ke SmelterConnect berhasil! Tersinkronisasi.'), 2000);
+}
+
+// ====================================================
+// TABS
+// ====================================================
+function showTab(tab) {
+  ['new','history','dashboard'].forEach(t => {
+    const el = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    const content = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(el) el.classList.remove('active');
+  });
+  document.getElementById('tabNew').style.display = tab === 'new' ? '' : 'none';
+  document.getElementById('tabHistory').style.display = tab === 'history' ? '' : 'none';
+  document.getElementById('tabDashboard').style.display = tab === 'dashboard' ? '' : 'none';
+  document.getElementById('tab-new').classList.toggle('active', tab==='new');
+  document.getElementById('tab-history').classList.toggle('active', tab==='history');
+  document.getElementById('tab-dashboard').classList.toggle('active', tab==='dashboard');
+  if (tab === 'history') { renderHistory(); renderDashCharts(); }
+  if (tab === 'dashboard') renderDashCharts();
+}
+
+// ====================================================
+// CHARTS
+// ====================================================
+function renderDashCharts() {
+  const dc = document.getElementById('chartDept');
+  const tc = document.getElementById('chartTrend');
+  if (!dc || !tc) return;
+
+  // Dept chart
+  const dLabels = ['Electrical','Power','Kalsinasi','Molding','Baking','Rodding','Casting','Purifikasi','Production','Lab'];
+  const dData = [6,4,5,3,4,2,3,4,5,3];
+  const dColors = ['#f87171','#2dd4bf','#fb923c','#38bdf8','#fbbf24','#4ade80','#2dd4bf','#4ade80','#38bdf8','#c084fc'];
+  const dctx = dc.getContext('2d');
+  drawBarChart(dctx, dc.offsetWidth, 240, dLabels, dData, dColors);
+
+  // Trend chart
+  const tLabels = ['28/5','29/5','30/5','31/5','01/6','02/6','03/6'];
+  const tData = [7,9,8,6,10,8,4];
+  const tctx = tc.getContext('2d');
+  drawLineChart(tctx, tc.offsetWidth, 240, tLabels, tData);
+}
+
+function drawBarChart(ctx, w, h, labels, data, colors) {
+  const canvas = ctx.canvas;
+  canvas.width = w || canvas.offsetWidth || 400;
+  canvas.height = h;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const padL=40, padR=10, padT=15, padB=50;
+  const cw=canvas.width-padL-padR, ch=h-padT-padB;
+  const max = Math.max(...data);
+  const barW = cw/data.length*0.7;
+  const gap = cw/data.length;
+  
+  ctx.font='11px Plus Jakarta Sans';
+  ctx.fillStyle='#94a3b8';
+  for(let i=0;i<=5;i++){
+    const y=padT+ch-ch*(i/5);
+    ctx.fillStyle='rgba(255,255,255,0.06)';
+    ctx.fillRect(padL,y,cw,1);
+    ctx.fillStyle='#94a3b8';
+    ctx.fillText(Math.round(max*i/5),padL-28,y+4);
+  }
+  data.forEach((v,i)=>{
+    const x=padL+gap*i+gap*0.15;
+    const bh=ch*(v/max);
+    const y=padT+ch-bh;
+    ctx.fillStyle=colors[i%colors.length];
+    roundRect(ctx,x,y,barW,bh,5);
+    ctx.fill();
+    
+    ctx.font='12px Plus Jakarta Sans';
+    ctx.fillStyle='#ffffff';
+    ctx.textAlign='center';
+    ctx.fillText(v,x+barW/2,y-6);
+    
+    ctx.fillStyle='#cbd5e1';
+    ctx.font='10px Plus Jakarta Sans';
+    const lbl=labels[i]||'';
+    ctx.fillText(lbl.length>7?lbl.slice(0,7)+'…':lbl, x+barW/2, padT+ch+18);
+    if(lbl.length>7){ctx.fillText(lbl.slice(7),x+barW/2,padT+ch+30);}
+    ctx.textAlign='left';
+  });
+}
+
+function drawLineChart(ctx, w, h, labels, data) {
+  const canvas = ctx.canvas;
+  canvas.width = w || canvas.offsetWidth || 400;
+  canvas.height = h;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const padL=40, padR=20, padT=25, padB=40;
+  const cw=canvas.width-padL-padR, ch=h-padT-padB;
+  const max = Math.max(...data)+2;
+  
+  ctx.font='11px Plus Jakarta Sans';
+  ctx.fillStyle='#94a3b8';
+  for(let i=0;i<=5;i++){
+    const y=padT+ch-ch*(i/5);
+    ctx.fillStyle='rgba(255,255,255,0.06)';
+    ctx.fillRect(padL,y,cw,1);
+    ctx.fillStyle='#94a3b8';
+    ctx.fillText(Math.round(max*i/5),2,y+4);
+  }
+  const pts = data.map((v,i)=>({
+    x:padL+cw*(i/(data.length-1)),
+    y:padT+ch-ch*(v/max)
+  }));
+  
+  // gradient fill
+  const grad = ctx.createLinearGradient(0,padT,0,padT+ch);
+  grad.addColorStop(0,'rgba(56,189,248,0.3)');
+  grad.addColorStop(1,'rgba(56,189,248,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,padT+ch);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,padT+ch);
+  ctx.closePath();
+  ctx.fillStyle=grad;
+  ctx.fill();
+  
+  // line
+  ctx.beginPath();
+  ctx.strokeStyle='#38bdf8';
+  ctx.lineWidth=3;
+  pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+  
+  // dots
+  pts.forEach((p,i)=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,5,0,Math.PI*2);
+    ctx.fillStyle='#38bdf8';
+    ctx.fill();
+    ctx.lineWidth=2;
+    ctx.strokeStyle='#1e293b';
+    ctx.stroke();
+    
+    ctx.fillStyle='#ffffff';
+    ctx.textAlign='center';
+    ctx.font='12px Plus Jakarta Sans';
+    ctx.fillText(data[i],p.x,p.y-12);
+    
+    ctx.fillStyle='#cbd5e1';
+    ctx.font='11px Plus Jakarta Sans';
+    ctx.fillText(labels[i],p.x,padT+ch+18);
+    ctx.textAlign='left';
+  });
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h);
+  ctx.lineTo(x,y+h);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+// ====================================================
+// TOAST
+// ====================================================
+function showToast(msg, dur=3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ====================================================
+// CONTACT
+// ====================================================
+function openContact(name, phone, email) {}
+function contactPhone() { showToast('📞 Menghubungi '+document.getElementById('contName').textContent); }
+function contactEmail() { showToast('✉️ Membuka email ke '+document.getElementById('contEmail').textContent); }
+function sendQuickMsg() {
+  const m = document.getElementById('quickMsg').value;
+  if(!m.trim()){showToast('⚠️ Tulis pesan terlebih dahulu!');return;}
+  showToast('✅ Pesan terkirim ke '+document.getElementById('contName').textContent);
+  document.getElementById('quickMsg').value='';
+  closeModal();
+}
+
+// ====================================================
+// INIT
+// ====================================================
+window.addEventListener('load', () => {
+  // Set datetime to now
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('inspDateTime').value =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  renderHistory();
+  updateStats();
+
+  // Render charts after slight delay
+  setTimeout(() => renderDashCharts(), 200);
+});
+
+// Responsive chart redraw
+window.addEventListener('resize', () => renderDashCharts());
+</script>
+</body>
+</html>
